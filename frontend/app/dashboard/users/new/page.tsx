@@ -5,7 +5,6 @@ import UserForm from '@/components/dashboard/UserForm';
 
 export default function NewUserPage() {
   return (
-    <DashboardLayout>
       <div className="p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Nuevo Usuario</h1>
@@ -14,6 +13,5 @@ export default function NewUserPage() {
         
         <UserForm />
       </div>
-    </DashboardLayout>
   );
 }

@@ -1,4 +1,3 @@
-// frontend/app/(dashboard)/dashboard/layout.tsx
 "use client";
 import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";

@@ -48,7 +48,7 @@ export default function UsersPage() {
             <p className="text-gray-600 mt-1">Gestiona los usuarios del sistema</p>
           </div>
           <a
-            href="dashboard/users/new"
+            href="/users/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
           >
             + Nuevo Usuario
