@@ -13,6 +13,14 @@ export class EcommerceController {
     return this.ecommerceService.create(createEcommerceDto);
   }
 
+  @Get('my-orders')
+  @UseGuards(JwtAuthGuard)
+  async findMyOrders(@Req() req) {
+    console.log('Usuario en JWT:', req.user);
+    const clientId = req.user.id;
+    return this.ecommerceService.findByClient(clientId);
+  }
+
   @Get()
   findAll() {
     return this.ecommerceService.findAll();
@@ -32,13 +40,4 @@ export class EcommerceController {
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.ecommerceService.remove(id);
   }
-
-  @Get('my-orders')
-  @UseGuards(JwtAuthGuard)
-  async findMyOrders(@Req() req) {
-    console.log('Usuario en JWT:', req.user);
-    const clientId = req.user.id;
-    return this.ecommerceService.findByClient(clientId);
-  }
-
 }

@@ -7,24 +7,28 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class CategoriesService {
-  constructor( @InjectRepository(Category)
-    private readonly categoryRepository: Repository<Category>) {
-   
-  }
+  constructor(
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+  ) {}
   async create(createCategoryDto: CreateCategoryDto) {
     const category = await this.categoryRepository.create(createCategoryDto);
     return await this.categoryRepository.save(category);
   }
 
   async findAll() {
-    return await this.categoryRepository.find({ where : { isActive: true},
-    order: { createdAt: 'DESC' } });
+    return await this.categoryRepository.find({
+      where: { isActive: true },
+      order: { createdAt: 'DESC' },
+    });
   }
 
   async findOne(id: string) {
-    const category = await this.categoryRepository.findOne({ where: {id, isActive: true} });
-    if(!category) {
-      return new NotFoundException(`category with id ${id} not found`);
+    const category = await this.categoryRepository.findOne({
+      where: { id, isActive: true },
+    });
+    if (!category) {
+      throw new NotFoundException(`category with id ${id} not found`);
     }
     return category;
   }
@@ -33,10 +37,14 @@ export class CategoriesService {
     //verifica si existe la categoria y si esta activo
     await this.findOne(id);
 
-    const category= await this.categoryRepository.preload({ id, 
-      ...updateCategoryDto
-    })
-    return await this.categoryRepository.save(category!);
+    const category = await this.categoryRepository.preload({
+      id,
+      ...updateCategoryDto,
+    });
+    if (!category) {
+      throw new NotFoundException(`category with id ${id} not found`);
+    }
+    return await this.categoryRepository.save(category);
   }
 
   async remove(id: string) {
@@ -44,6 +52,6 @@ export class CategoriesService {
 
     await this.categoryRepository.update(id, { isActive: false });
 
-    return { message: `category (${category.name}) desative successfully`}
+    return { message: `category (${category.name}) deactivated successfully` };
   }
 }

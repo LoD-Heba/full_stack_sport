@@ -12,15 +12,15 @@ export class UploadsService {
     return `This action returns all uploads`;
   }
 
-  findOne(id: number) {
+  findOne(id: string) {
     return `This action returns a #${id} upload`;
   }
 
-  update(id: number, updateUploadDto: UpdateUploadDto) {
+  update(id: string, updateUploadDto: UpdateUploadDto) {
     return `This action updates a #${id} upload`;
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} upload`;
   }
 }

@@ -105,9 +105,23 @@ export class EcommerceService {
     return ecommerce;
   }
 
-  update(id: string, updateEcommerceDto: UpdateEcommerceDto) {
-    return `This action updates a #${id} ecommerce`;
+  async update(id: string, updateEcommerceDto: UpdateEcommerceDto) {
+  const ecommerce = await this.findOne(id);
+  if (!ecommerce) {
+    throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
   }
+  
+  const updatedEcommerce = await this.ecommerceRepository.preload({
+    id,
+    ...updateEcommerceDto,
+  });
+
+  if (!updatedEcommerce) {
+    throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
+  }
+
+  return await this.ecommerceRepository.save(updatedEcommerce);
+}
 
   async remove(id: string) {
     const ecommerce = await this.findOne(id);
@@ -118,10 +132,10 @@ export class EcommerceService {
   }
 
   async findByClient(clientId: string): Promise<Ecommerce[]> {
-    const client = await this.clientRepository.findOne({
-      where:{id: clientId},
-      relations:['ecommerces', 'ecommerces.ecommerceDetail', 'ecommerces.ecommerceDetail.prodcut']
-    });
-    return client?.ecommerce || [];
-  }
+  const client = await this.clientRepository.findOne({
+    where:{id: clientId},
+    relations:['ecommerce', 'ecommerce.ecommerceDetail', 'ecommerce.ecommerceDetail.product']
+  });
+  return client?.ecommerce || [];
+}
 }

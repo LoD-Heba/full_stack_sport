@@ -14,8 +14,6 @@ export class ReportPdfController {
   async getFactura(@Param('id', ParseUUIDPipe) id: string, @Res() res: Response) {
     
     const order = await this.ordersService.findOne(id);
-
-    if (!order) throw new NotFoundException('Orden no encontrada');
     
     const pdfBuffer = await this.reportPdfService.generatePdf(order);
     res.set({

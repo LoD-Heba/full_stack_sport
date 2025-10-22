@@ -39,7 +39,7 @@ export class ProductsService {
 
     return await this.productRepository.find({
       where: { isActive: true, category: { isActive: true } },
-      relations: ['category', 'images'], // 🔹 Aquí agregamos category
+      relations: ['category', 'images'], 
       order: { createdAt: 'DESC' },
 
     });
@@ -114,7 +114,7 @@ export class ProductsService {
     })
 
     if (!category) {
-      throw new NotFoundException(`this whit id ${categoryId} not found`)
+      throw new NotFoundException(`Category with id ${categoryId} not found`)
     }
     return category;
   }
@@ -123,7 +123,7 @@ export class ProductsService {
   async findByCategory(categoryId: string) {
     return await this.productRepository.find({
       where: { category: { id: categoryId } },
-      relations: ['category', 'images'], // 🔹 Aquí agregamos category
+      relations: ['category', 'images'], 
     });
   }
 

@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateClientDto } from './dto/create-client.dto';
 import { UpdateClientDto } from './dto/update-client.dto';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -6,57 +10,66 @@ import { Client } from './entities/client.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
-
 @Injectable()
 export class ClientsService {
   constructor(
     @InjectRepository(Client)
     private readonly clientRepository: Repository<Client>,
-  ) { }
+  ) {}
   async create(createClientDto: CreateClientDto) {
     const { password, ...userData } = createClientDto;
 
-    const hashedPassword = await bcrypt.hash(password, 12)
+    const hashedPassword = await bcrypt.hash(password, 12);
     const user = this.clientRepository.create({
       ...userData,
-      password: hashedPassword
-    })
+      password: hashedPassword,
+    });
 
-    const saveUser = await this.clientRepository.save(user)
+    const saveUser = await this.clientRepository.save(user);
     return await this.clientRepository.findOneBy({
-      id: saveUser.id
-    })
+      id: saveUser.id,
+    });
   }
 
   async findAll() {
-    return this.clientRepository.find()
+    return this.clientRepository.find();
   }
 
+  //PARA LLAMAR SOLO CLIENTES ACTIVOS - OPCIONAL
+  /*async findAll() {
+  return this.clientRepository.find({
+    where: { isActive: true }
+  })
+}
+  */
   async findOne(id: string) {
     const existClient = await this.clientRepository.findOne({
       where: { id },
-      relations: ['ecommerces', 'ecommerces.ecommerceDetail', 'ecommerces.ecommerceDetail.product']
+      relations: [
+        'ecommerce',
+        'ecommerce.ecommerceDetail',
+        'ecommerce.ecommerceDetail.product',
+      ],
     });
 
     if (!existClient) {
-      return new NotFoundException(`cliente con el id ${id} no encontrado`);
+      throw new NotFoundException(`cliente con el id ${id} no encontrado`);
     }
 
     if (!existClient.isActive) {
       throw new BadRequestException(`El cliente con ID ${id} no está activo`);
     }
 
-    return existClient
+    return existClient;
   }
 
   async update(id: string, updateClientDto: UpdateClientDto) {
-
     const existClient = await this.clientRepository.findOne({
-      where: { id }
+      where: { id },
     });
 
     if (!existClient) {
-      return new NotFoundException(`cliente con el id ${id} no encontrado`);
+      throw new NotFoundException(`cliente con el id ${id} no encontrado`);
     }
 
     const { password, ...clientData } = updateClientDto;
@@ -66,18 +79,24 @@ export class ClientsService {
     }
 
     const client = await this.clientRepository.preload({
-      id, ...clientData,
+      id,
+      ...clientData,
       ...(updatePassword && { password: updatePassword }),
-    })
+    });
 
-    return await this.clientRepository.save(client!);
+    if (!client) {
+      throw new NotFoundException(`cliente con el id ${id} no encontrado`);
+    }
 
+    return await this.clientRepository.save(client);
   }
 
   async remove(id: string) {
-    const client = await this.findOne(id) as Client;
+    const client = (await this.findOne(id)) as Client;
     await this.clientRepository.update(id, { isActive: false });
 
-    return {message: `client (${client.firstName}) se desavilito correctamente`}
+    return {
+      message: `cliente (${client.firstName}) ha sido desactivado correctamente`,
+    };
   }
 }

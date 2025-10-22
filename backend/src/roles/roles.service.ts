@@ -11,9 +11,7 @@ export class RolesService {
   constructor(
     @InjectRepository(Role)
     private readonly roleRepository: Repository<Role>,
-  ){
-
-  }
+  ) {}
   async create(createRoleDto: CreateRoleDto) {
     const role = await this.roleRepository.create(createRoleDto);
     return await this.roleRepository.save(role);
@@ -22,23 +20,40 @@ export class RolesService {
   async findAll() {
     return await this.roleRepository.find({
       where: { isActive: true },
-    })
+    });
   }
 
-  findOne(id: string) {
-    return `This action returns a #${id} role`;
+  async findOne(id: string) {
+    const role = await this.roleRepository.findOne({
+      where: { id, isActive: true },
+    });
+    if (!role) {
+      throw new NotFoundException(`El rol con el id ${id} no existe`);
+    }
+    return role;
   }
 
-  update(id: string, updateRoleDto: UpdateRoleDto) {
-    return `This action updates a #${id} role`;
+  async update(id: string, updateRoleDto: UpdateRoleDto) {
+    const role = await this.roleRepository.findOneBy({ id });
+    if (!role) {
+      throw new NotFoundException(`El rol con el id ${id} no existe`);
+    }
+    const updatedRole = await this.roleRepository.preload({
+      id,
+      ...updateRoleDto,
+    });
+    if (!updatedRole) {
+      throw new NotFoundException(`No se pudo preparar el rol con el id ${id}`);
+    }
+    return await this.roleRepository.save(updatedRole);
   }
 
   async remove(id: string) {
-    const rol = await this.roleRepository.findOneBy({id})
-    if(!rol){
+    const rol = await this.roleRepository.findOneBy({ id });
+    if (!rol) {
       throw new NotFoundException(`El rol con el id ${id} no existe`);
     }
     await this.roleRepository.remove(rol);
-    return { message: 'rol eliminado correctamente'};
+    return { message: 'rol eliminado correctamente' };
   }
 }

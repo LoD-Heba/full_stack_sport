@@ -22,23 +22,19 @@ export class UploadsController {
     return files; // ["imagen1.jpg", "imagen2.jpg"]
   }
 
-  @Get()
-  findAll() {
-    return this.uploadsService.findAll();
-  }
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.uploadsService.findOne(+id);
+    return this.uploadsService.findOne(id);
   }
 
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUploadDto: UpdateUploadDto) {
-    return this.uploadsService.update(+id, updateUploadDto);
+    return this.uploadsService.update(id, updateUploadDto);
   }
 
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.uploadsService.remove(+id);
+    return this.uploadsService.remove(id);
   }
 }

@@ -78,13 +78,14 @@ export class OrdersService {
   }
 
   async findAll() {
-    return await this.orderRepository.find({
-      where: [
-        { status: 'Pendiente' },
-        { status: 'Vendido' },
-      ], relations: ['orderDetails']
-    });
-  }
+  return await this.orderRepository.find({
+    where: [
+      { status: 'Pendiente' },
+      { status: 'Vendido' },
+    ], 
+    relations: ['orderDetails', 'orderDetails.product', 'users']
+  });
+}
 
   async findOne(id: string) {
     const order = await this.orderRepository.findOne({
@@ -180,6 +181,6 @@ export class OrdersService {
     const order = await this.findOne(id);
     await this.orderRepository.update(id, { status: 'Rechazado' })
 
-    return { message: `order (${order.nameClient}) fue Rechazado conrrectamente`};
+    return { message: `order (${order.nameClient}) fue rechazado conrrectamente`};
   }
 }
