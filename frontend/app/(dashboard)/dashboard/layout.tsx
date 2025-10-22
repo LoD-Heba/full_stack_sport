@@ -1,25 +1,28 @@
-"use client"
-import { useState } from 'react';
+"use client";
+import { useState, ReactNode } from "react";
 
-export default function DashboardLayout() {
+export default function DashboardLayout({
+  children,
+}: {
+  children?: ReactNode;
+}) {
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const menuItems = [
-    { label: 'Dashboard', href: '/dashboard', icon: '📊' },
-    { label: 'Usuarios', href: '/dashboard/users', icon: '👥' },
-    { label: 'Roles', href: '/dashboard/roles', icon: '🔐' },
-    { label: 'Productos', href: '/dashboard/products', icon: '📦' },
-    { label: 'Categorías', href: '/dashboard/categories', icon: '🏷️' },
-    { label: 'Órdenes', href: '/dashboard/orders', icon: '🛒' },
-    { label: 'Reportes', href: '/dashboard/reports', icon: '📈' },
+    { label: "Dashboard", href: "/dashboard", icon: "📊" },
+    { label: "Usuarios", href: "/dashboard/users", icon: "👥" },
+    { label: "Roles", href: "/dashboard/roles", icon: "🔐" },
+    { label: "Productos", href: "/dashboard/products", icon: "📦" },
+    { label: "Categorías", href: "/dashboard/categories", icon: "🏷️" },
+    { label: "Órdenes", href: "/dashboard/orders", icon: "🛒" },
+    { label: "Reportes", href: "/dashboard/reports", icon: "📈" },
   ];
 
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* SIDEBAR */}
       <aside
         className={`${
-          sidebarOpen ? 'w-64' : 'w-20'
+          sidebarOpen ? "w-64" : "w-20"
         } bg-gray-900 text-white transition-all duration-300 ease-in-out flex flex-col`}
       >
         {/* Logo Section */}
@@ -28,7 +31,7 @@ export default function DashboardLayout() {
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="p-1 hover:bg-gray-800 rounded transition"
-            title={sidebarOpen ? 'Cerrar' : 'Abrir'}
+            title={sidebarOpen ? "Cerrar" : "Abrir"}
           >
             ☰
           </button>
@@ -41,7 +44,7 @@ export default function DashboardLayout() {
               key={item.href}
               href={item.href}
               className="flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-800 transition group"
-              title={!sidebarOpen ? item.label : ''}
+              title={!sidebarOpen ? item.label : ""}
             >
               <span className="text-xl flex shrink-0">{item.icon}</span>
               {sidebarOpen && (
@@ -57,10 +60,12 @@ export default function DashboardLayout() {
         <div className="px-4 py-4 border-t border-gray-700">
           <button
             className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-800 transition text-red-400 hover:text-red-300"
-            title={!sidebarOpen ? 'Cerrar Sesión' : ''}
+            title={!sidebarOpen ? "Cerrar Sesión" : ""}
           >
             <span className="text-xl flex shrink-0">🚪</span>
-            {sidebarOpen && <span className="text-sm font-medium">Cerrar Sesión</span>}
+            {sidebarOpen && (
+              <span className="text-sm font-medium">Cerrar Sesión</span>
+            )}
           </button>
         </div>
       </aside>
@@ -104,41 +109,43 @@ export default function DashboardLayout() {
         {/* CONTENT AREA */}
         <main className="flex-1 overflow-auto p-6">
           {/* Placeholder Content */}
-          <div className="max-w-7xl mx-auto">
-            <div className="bg-white rounded-lg shadow p-8 min-h-96">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                Contenido del Dashboard
-              </h2>
-              <p className="text-gray-600">
-                Selecciona una opción del menú lateral para comenzar.
-              </p>
+          {children || (
+            <div className="max-w-7xl mx-auto">
+              <div className="bg-white rounded-lg shadow p-8 min-h-96">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                  Contenido del Dashboard
+                </h2>
+                <p className="text-gray-600">
+                  Selecciona una opción del menú lateral para comenzar.
+                </p>
 
-              {/* Stats Grid Example */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-                {[
-                  { label: 'Total Usuarios', value: '1,234', icon: '👥' },
-                  { label: 'Productos', value: '567', icon: '📦' },
-                  { label: 'Órdenes', value: '89', icon: '🛒' },
-                  { label: 'Ingresos', value: '$12,345', icon: '💰' },
-                ].map((stat, idx) => (
-                  <div
-                    key={idx}
-                    className="bg gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200"
-                  >
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <p className="text-sm text-gray-600">{stat.label}</p>
-                        <p className="text-2xl font-bold text-gray-900 mt-1">
-                          {stat.value}
-                        </p>
+                {/* Stats Grid Example */}
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
+                  {[
+                    { label: "Total Usuarios", value: "1,234", icon: "👥" },
+                    { label: "Productos", value: "567", icon: "📦" },
+                    { label: "Órdenes", value: "89", icon: "🛒" },
+                    { label: "Ingresos", value: "$12,345", icon: "💰" },
+                  ].map((stat, idx) => (
+                    <div
+                      key={idx}
+                      className="bg gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="text-sm text-gray-600">{stat.label}</p>
+                          <p className="text-2xl font-bold text-gray-900 mt-1">
+                            {stat.value}
+                          </p>
+                        </div>
+                        <span className="text-4xl opacity-20">{stat.icon}</span>
                       </div>
-                      <span className="text-4xl opacity-20">{stat.icon}</span>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </main>
       </div>
 
