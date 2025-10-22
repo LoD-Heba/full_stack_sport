@@ -2,6 +2,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { CreateRoleDto } from '@/types/role';
+import { useRouter } from 'next/navigation';
 
 interface RoleFormProps {
   roleId?: string;
@@ -9,6 +10,7 @@ interface RoleFormProps {
 }
 
 export default function RoleForm({ roleId, onSuccess }: RoleFormProps) {
+  const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateRoleDto>({
     name: '',
@@ -56,7 +58,7 @@ export default function RoleForm({ roleId, onSuccess }: RoleFormProps) {
 
       alert(roleId ? 'Rol actualizado correctamente' : 'Rol creado correctamente');
       if (onSuccess) onSuccess();
-      window.location.href = '/roles';
+      router.push('/dashboard/roles');
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Error al guardar');
     } finally {
@@ -123,7 +125,7 @@ export default function RoleForm({ roleId, onSuccess }: RoleFormProps) {
           {loading ? 'Guardando...' : roleId ? 'Actualizar Rol' : 'Crear Rol'}
         </button>
         <a
-          href="/roles"
+          href="/dashboard/roles"
           className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
         >
           Cancelar

@@ -48,7 +48,7 @@ export default function RolesPage() {
             <p className="text-gray-600 mt-1">Gestiona los roles y permisos del sistema</p>
           </div>
           <a
-            href="dashboard/roles/new"
+            href="/dashboard/roles/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
           >
             + Nuevo Rol
@@ -111,7 +111,7 @@ export default function RolesPage() {
 
                 <div className="flex gap-2 pt-4 border-t border-gray-200">
                   <a
-                    href={`/roles/${role.id}`}
+                    href={`/dashboard/roles/${role.id}`}
                     className="flex-1 text-center px-4 py-2 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 transition text-sm font-medium"
                   >
                     Editar
@@ -133,7 +133,7 @@ export default function RolesPage() {
             <span className="text-6xl mb-4 block">🔐</span>
             <p className="text-gray-500 text-lg">No hay roles registrados</p>
             <a
-              href="/roles/new"
+              href="/dashboard/roles/new"
               className="inline-block mt-4 text-blue-600 hover:text-blue-800 font-medium"
             >
               Crear el primer rol →

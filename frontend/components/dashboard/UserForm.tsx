@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Role } from '@/types/role';
 import { CreateUserDto, UpdateUserDto } from '@/types/user';
+import { useRouter } from 'next/navigation';
 
 interface UserFormProps {
   userId?: string;
@@ -10,6 +11,7 @@ interface UserFormProps {
 }
 
 export default function UserForm({ userId, onSuccess }: UserFormProps) {
+  const router = useRouter();
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<CreateUserDto>({
@@ -88,7 +90,7 @@ export default function UserForm({ userId, onSuccess }: UserFormProps) {
 
       alert(userId ? 'Usuario actualizado correctamente' : 'Usuario creado correctamente');
       if (onSuccess) onSuccess();
-      window.location.href = '/users';
+      router.push('/dashboard/users');
     } catch (error) {
       alert(error instanceof Error ? error.message : 'Error al guardar');
     } finally {
@@ -246,7 +248,7 @@ export default function UserForm({ userId, onSuccess }: UserFormProps) {
           {loading ? 'Guardando...' : userId ? 'Actualizar' : 'Crear Usuario'}
         </button>
         <a
-          href="/users"
+          href="/dashboard"
           className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
         >
           Cancelar

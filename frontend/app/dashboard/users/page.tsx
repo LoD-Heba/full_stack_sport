@@ -48,7 +48,7 @@ export default function UsersPage() {
             <p className="text-gray-600 mt-1">Gestiona los usuarios del sistema</p>
           </div>
           <a
-            href="/users/new"
+            href="/dashboard/users/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
           >
             + Nuevo Usuario
@@ -98,7 +98,7 @@ export default function UsersPage() {
                   <tr key={user.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 flex-shrink-0">
+                        <div className="h-10 w-10 flex shrink-0">
                           <div className="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center">
                             <span className="text-blue-600 font-semibold">
                               {user.firstName[0]}{user.lastName[0]}

@@ -4,7 +4,6 @@ import RoleForm from '@/components/dashboard/RoleForm';
 
 export default function NewRolePage() {
   return (
-    <DashboardLayout>
       <div className="p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Nuevo Rol</h1>
@@ -13,6 +12,5 @@ export default function NewRolePage() {
         
         <RoleForm />
       </div>
-    </DashboardLayout>
   );
 }
