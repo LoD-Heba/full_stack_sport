@@ -48,6 +48,7 @@ export class User {
     cascade: true,
     onDelete: 'SET NULL',
   })
+  @JoinColumn({ name: 'role_id' })
   role: Role;
 
   @OneToMany(() => Order, (order) => order.users, { eager: true })

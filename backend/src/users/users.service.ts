@@ -40,6 +40,7 @@ export class UsersService {
   async findAll() {
     return this.usersRepository.find({
       where: { isActive: true, role: { isActive: true } },
+      relations: ['role'],
     });
   }
 
