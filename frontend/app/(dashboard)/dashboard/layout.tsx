@@ -123,7 +123,7 @@ export default function DashboardLayout() {
                 ].map((stat, idx) => (
                   <div
                     key={idx}
-                    className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200"
+                    className="bg gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200"
                   >
                     <div className="flex items-center justify-between">
                       <div>
