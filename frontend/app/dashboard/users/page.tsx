@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { User } from '@/types/user';
-import DashboardLayout from '../dashboard/layout';
+import DashboardLayout from '../layout';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -40,7 +40,6 @@ export default function UsersPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -49,7 +48,7 @@ export default function UsersPage() {
             <p className="text-gray-600 mt-1">Gestiona los usuarios del sistema</p>
           </div>
           <a
-            href="/users/new"
+            href="dashboard/users/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
           >
             + Nuevo Usuario
@@ -163,6 +162,5 @@ export default function UsersPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }

@@ -1,6 +1,6 @@
 import RoleForm from '@/components/dashboard/RoleForm';
 import { use } from 'react';
-import DashboardLayout from '../../dashboard/layout';
+import DashboardLayout from '../../layout';
 
 export default function EditRolePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);

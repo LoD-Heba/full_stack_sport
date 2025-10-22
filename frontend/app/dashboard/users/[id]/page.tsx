@@ -1,7 +1,7 @@
 // frontend/app/(dashboard)/users/[id]/page.tsx
 "use client";
 import { use } from 'react';
-import DashboardLayout from '../../dashboard/layout';
+import DashboardLayout from '../../layout';
 import UserForm from '@/components/dashboard/UserForm';
 
 export default function EditUserPage({ params }: { params: Promise<{ id: string }> }) {

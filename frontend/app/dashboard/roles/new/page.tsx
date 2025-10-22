@@ -1,5 +1,5 @@
 "use client";
-import DashboardLayout from '../../dashboard/layout';
+import DashboardLayout from '../../layout';
 import RoleForm from '@/components/dashboard/RoleForm';
 
 export default function NewRolePage() {

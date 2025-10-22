@@ -1,6 +1,6 @@
 // frontend/app/(dashboard)/users/new/page.tsx
 "use client";
-import DashboardLayout from '../../dashboard/layout';
+import DashboardLayout from '../../layout';
 import UserForm from '@/components/dashboard/UserForm';
 
 export default function NewUserPage() {

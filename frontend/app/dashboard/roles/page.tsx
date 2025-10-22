@@ -2,7 +2,7 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { Role } from '@/types/role';
-import DashboardLayout from '../dashboard/layout';
+import DashboardLayout from '../layout';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState<Role[]>([]);
@@ -40,7 +40,6 @@ export default function RolesPage() {
   };
 
   return (
-    <DashboardLayout>
       <div className="p-6">
         {/* Header */}
         <div className="flex justify-between items-center mb-6">
@@ -49,7 +48,7 @@ export default function RolesPage() {
             <p className="text-gray-600 mt-1">Gestiona los roles y permisos del sistema</p>
           </div>
           <a
-            href="/roles/new"
+            href="dashboard/roles/new"
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition"
           >
             + Nuevo Rol
@@ -142,6 +141,5 @@ export default function RolesPage() {
           </div>
         )}
       </div>
-    </DashboardLayout>
   );
 }
