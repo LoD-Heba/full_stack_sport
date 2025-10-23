@@ -23,7 +23,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   //Global Exception Filter = maneja TODOS los errores
-  app.useGlobalFilters(new AllExceptionsFilter());
+  // app.useGlobalFilters(new AllExceptionsFilter());
 
 
   //Glopal prefix desde el archivo .env
