@@ -1,8 +1,9 @@
-
+// frontend/components/shop/ProductCard.tsx
 "use client";
 import Link from 'next/link';
 import { Product } from '@/types/product';
 import { useState } from 'react';
+import { useCart } from '@/app/shop/cart/CartContext';
 
 interface ProductCardProps {
   product: Product;
@@ -10,10 +11,19 @@ interface ProductCardProps {
 
 export default function ProductCard({ product }: ProductCardProps) {
   const [showAddedMessage, setShowAddedMessage] = useState(false);
+  const { addToCart } = useCart();
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
+
+    addToCart({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      stock: product.stock,
+      image: product.images?.[0]?.url,
+    });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 2000);
@@ -102,7 +112,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {showAddedMessage ? '✅ Agregado' : 'Agregar'}
+            {showAddedMessage ? '✅ Agregado al carrito' : '🛒 Agregar al carrito'}
           </button>
         </div>
       </div>

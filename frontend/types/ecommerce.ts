@@ -1,49 +1,38 @@
+// frontend/types/ecommerce.ts
 
 export interface EcommerceDetail {
   id: string;
+  productId: string;
+  quantity: number;
+  subTotal: number;
   product: {
     id: string;
     name: string;
-    slug: string;
+    price: number;
+    images?: Array<{ url: string }>;
   };
-  quantity: number;
-  unitPrice: number;
-  subTotal: number;
 }
 
 export interface Ecommerce {
   id: string;
+  clientId: string;
   nameClient: string;
   nameCompany?: string;
-  status: 'Pendiente' | 'Vendido' | 'Rechazado';
+  userId: string;
   total: number;
-  client: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
-  users: {
-    id: string;
-    firstName: string;
-    lastName: string;
-    email: string;
-  };
+  status: string;
+  createdAt: string;
+  updatedAt: string;
   ecommerceDetail: EcommerceDetail[];
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 export interface CreateEcommerceDto {
   clientId: string;
   nameClient: string;
   nameCompany?: string;
-  status?: 'Pendiente' | 'Vendido' | 'Rechazado';
   userId: string;
   ecommerceDetail: Array<{
     productId: string;
     quantity: number;
   }>;
 }
-
-export interface UpdateEcommerceDto extends Partial<CreateEcommerceDto> {}

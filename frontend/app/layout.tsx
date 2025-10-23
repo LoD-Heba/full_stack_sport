@@ -1,4 +1,7 @@
+// frontend/app/layout.tsx
+"use client";
 import { Toaster } from "@/components/ui/sonner";
+import { CartProvider } from "./shop/cart/CartContext";
 import "./globals.css";
 
 export default function RootLayout({
@@ -9,9 +12,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <CartProvider>
           {children}
+        </CartProvider>
+        <Toaster position="top-right" />
       </body>
-      <Toaster position="top-right" />
     </html>
   );
 }

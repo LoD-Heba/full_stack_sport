@@ -20,8 +20,8 @@ export default function Sidebar({ menuItems: customMenuItems }: SidebarProps) {
     { label: "Roles", href: "/dashboard/roles", icon: "🔐" },
     { label: "Productos", href: "/dashboard/products", icon: "📦" },
     { label: "Categorías", href: "/dashboard/categories", icon: "🏷️" },
+    { label: "Ventas", href: "/dashboard/sales", icon: "💰" },
     { label: "Órdenes", href: "/dashboard/orders", icon: "🛒" },
-    { label: "Reportes", href: "/dashboard/reports", icon: "📈" },
   ];
 
   const menuItems = customMenuItems || defaultMenuItems;

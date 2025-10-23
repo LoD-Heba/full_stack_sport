@@ -68,51 +68,51 @@ export default function CheckoutPage() {
     }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    setError(null);
+  // frontend/app/shop/checkout/page.tsx
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
+  setError(null);
 
-    try {
-      if (!token || !clientData) {
-        throw new Error('Información de autenticación faltante');
-      }
-
-      const orderData = {
-        clientId: clientData.id,
-        nameClient: formData.nameClient,
-        nameCompany: formData.nameCompany || undefined,
-        userId: clientData.id,
-        ecommerceDetail: cart.items.map(item => ({
-          productId: item.productId,
-          quantity: item.quantity,
-        })),
-      };
-
-      const response = await fetch('/api/ecommerce', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-        },
-        body: JSON.stringify(orderData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al crear la orden');
-      }
-
-      const order = await response.json();
-      clearCart();
-      router.push(`/order-confirmation/${order.id}`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al procesar el pedido');
-    } finally {
-      setLoading(false);
+  try {
+    if (!token || !clientData) {
+      throw new Error('Información de autenticación faltante');
     }
-  };
 
+    const orderData = {
+      clientId: clientData.id, // ✅ Usar el ID del usuario
+      nameClient: formData.nameClient,
+      nameCompany: formData.nameCompany || undefined,
+      userId: clientData.id, // ✅ Mismo ID
+      ecommerceDetail: cart.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+      })),
+    };
+
+    const response = await fetch('/api/ecommerce', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(orderData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Error al crear la orden');
+    }
+
+    const order = await response.json();
+    clearCart();
+    router.push(`/shop/order-confirmation/${order.id}`);
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Error al procesar el pedido');
+  } finally {
+    setLoading(false);
+  }
+};
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
