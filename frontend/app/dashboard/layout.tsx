@@ -1,8 +1,9 @@
+// frontend/app/dashboard/layout.tsx
+
 "use client";
 import { ReactNode } from "react";
 import Sidebar from "@/components/dashboard/Sidebar";
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
-import StatsCard from "@/components/dashboard/StatsCard";
 
 interface DashboardLayoutProps {
   children?: ReactNode;
@@ -31,10 +32,50 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 {/* Stats Grid Example */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-                  <StatsCard label="Total Usuarios" value="1,234" icon="👥" />
-                  <StatsCard label="Productos" value="567" icon="📦" />
-                  <StatsCard label="Órdenes" value="89" icon="🛒" />
-                  <StatsCard label="Ingresos" value="$12,345" icon="💰" />
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Total Usuarios</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          1,234
+                        </p>
+                      </div>
+                      <span className="text-4xl opacity-20">👥</span>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Productos</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          567
+                        </p>
+                      </div>
+                      <span className="text-4xl opacity-20">📦</span>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Órdenes</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          89
+                        </p>
+                      </div>
+                      <span className="text-4xl opacity-20">🛒</span>
+                    </div>
+                  </div>
+                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-gray-600">Ingresos</p>
+                        <p className="text-2xl font-bold text-gray-900 mt-1">
+                          $12,345
+                        </p>
+                      </div>
+                      <span className="text-4xl opacity-20">💰</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

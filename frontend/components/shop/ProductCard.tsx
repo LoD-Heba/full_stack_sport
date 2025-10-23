@@ -42,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-110 transition"
               onError={(e) => {
-                e.currentTarget.src = '/placeholder.png';
+                e.currentTarget.src = '#';
               }}
             />
           ) : (
@@ -89,7 +89,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           {/* Precio */}
           <div className="mb-4">
             <p className="text-lg font-bold text-blue-600">
-              Bs{product.price.toFixed(2)}
+              Bs{product.price}
             </p>
           </div>
 
