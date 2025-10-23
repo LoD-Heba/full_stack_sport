@@ -7,10 +7,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1
 // GET /api/categories/[id] - Obtener una categoría por ID
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const response = await fetch(`${API_URL}/categories/${params.id}`, {
+    const { id } = await params; // ✅ AWAIT aquí
+    const response = await fetch(`${API_URL}/categories/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -29,7 +30,7 @@ export async function GET(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error en GET /api/categories/${params.id}:`, error);
+    console.error('Error en GET /api/categories/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -40,12 +41,13 @@ export async function GET(
 // PATCH /api/categories/[id] - Actualizar una categoría
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params; // ✅ AWAIT aquí
     const body = await request.json();
 
-    const response = await fetch(`${API_URL}/categories/${params.id}`, {
+    const response = await fetch(`${API_URL}/categories/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -64,7 +66,7 @@ export async function PATCH(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error en PATCH /api/categories/${params.id}:`, error);
+    console.error('Error en PATCH /api/categories/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -75,10 +77,11 @@ export async function PATCH(
 // DELETE /api/categories/[id] - Eliminar una categoría
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const response = await fetch(`${API_URL}/categories/${params.id}`, {
+    const { id } = await params; // ✅ AWAIT aquí
+    const response = await fetch(`${API_URL}/categories/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -96,7 +99,7 @@ export async function DELETE(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error en DELETE /api/categories/${params.id}:`, error);
+    console.error('Error en DELETE /api/categories/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }

@@ -1,10 +1,10 @@
 
 "use client";
 import { useEffect, useState } from 'react';
-import { Order } from '@/types/order';
+import { Ecommerce } from '@/types/ecommerce';
 
-export default function OrdersPage() {
-  const [orders, setOrders] = useState<Order[]>([]);
+export default function EcommerceAdminPage() {
+  const [orders, setOrders] = useState<Ecommerce[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,8 +17,8 @@ export default function OrdersPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/orders');
-      if (!response.ok) throw new Error('Error al cargar órdenes');
+      const response = await fetch('/api/ecommerce');
+      if (!response.ok) throw new Error('Error al cargar órdenes de ecommerce');
       const data = await response.json();
       setOrders(data);
     } catch (err) {
@@ -30,7 +30,7 @@ export default function OrdersPage() {
 
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
-      const response = await fetch(`/api/orders/${id}`, {
+      const response = await fetch(`/api/ecommerce/${id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -54,7 +54,7 @@ export default function OrdersPage() {
     if (!confirm(`¿Estás seguro de rechazar la orden de "${nameClient}"?`)) return;
 
     try {
-      const response = await fetch(`/api/orders/${id}`, {
+      const response = await fetch(`/api/ecommerce/${id}`, {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',
@@ -74,13 +74,14 @@ export default function OrdersPage() {
   };
 
   const handleDownloadPDF = (orderId: string) => {
-    window.open(`/api/orders/${orderId}/pdf`, '_blank');
+    // Ruta del backend para descargar PDF de ecommerce
+    window.open(`${process.env.NEXT_PUBLIC_API_URL}/ecommerce-report-pdf/factura/${orderId}`, '_blank');
   };
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch =
       order.nameClient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.nameCompany?.toLowerCase().includes(searchTerm.toLowerCase());
+      order.client.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !selectedStatus || order.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
@@ -102,15 +103,15 @@ export default function OrdersPage() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Órdenes</h1>
-        <p className="text-gray-600 mt-1">Gestiona las órdenes de los clientes</p>
+        <h1 className="text-3xl font-bold text-gray-900">Órdenes de Ecommerce</h1>
+        <p className="text-gray-600 mt-1">Gestiona las órdenes de clientes desde la tienda online</p>
       </div>
 
       {/* Filters */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
         <input
           type="text"
-          placeholder="Buscar por cliente o empresa..."
+          placeholder="Buscar por cliente o email..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -152,7 +153,7 @@ export default function OrdersPage() {
                   Cliente
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Empresa
+                  Email
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Total
@@ -175,18 +176,13 @@ export default function OrdersPage() {
               {filteredOrders.map((order) => (
                 <tr key={order.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div>
-                      <div className="text-sm font-medium text-gray-900">
-                        {order.nameClient}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        {order.users.email}
-                      </div>
+                    <div className="text-sm font-medium text-gray-900">
+                      {order.nameClient}
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
-                      {order.nameCompany || '—'}
+                      {order.client.email}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -196,7 +192,7 @@ export default function OrdersPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
-                      {order.orderDetails.length} {order.orderDetails.length === 1 ? 'ítem' : 'ítems'}
+                      {order.ecommerceDetail.length} {order.ecommerceDetail.length === 1 ? 'ítem' : 'ítems'}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -216,12 +212,6 @@ export default function OrdersPage() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a
-                      href={`/dashboard/orders/${order.id}`}
-                      className="text-blue-600 hover:text-blue-900 mr-4"
-                    >
-                      Ver
-                    </a>
                     <button
                       onClick={() => handleDownloadPDF(order.id)}
                       className="text-green-600 hover:text-green-900 mr-4"
@@ -243,7 +233,7 @@ export default function OrdersPage() {
           {filteredOrders.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">
-                {searchTerm || selectedStatus ? 'No hay órdenes que coincidan' : 'No hay órdenes registradas'}
+                {searchTerm || selectedStatus ? 'No hay órdenes que coincidan' : 'No hay órdenes de ecommerce'}
               </p>
             </div>
           )}

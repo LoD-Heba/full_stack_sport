@@ -1,15 +1,17 @@
+// frontend/app/api/ecommerce/[id]/route.ts
+
 import { NextRequest, NextResponse } from 'next/server';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1';
 
-// GET /api/products/[id] - Obtener un producto por ID
+// GET /api/ecommerce/[id] - Obtener una orden de ecommerce por ID
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params; // ✅ AWAIT aquí
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const response = await fetch(`${API_URL}/ecommerce/${id}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
@@ -20,7 +22,7 @@ export async function GET(
     if (!response.ok) {
       const error = await response.json();
       return NextResponse.json(
-        { error: error.message || 'Error al obtener producto' },
+        { error: error.message || 'Error al obtener orden de ecommerce' },
         { status: response.status }
       );
     }
@@ -28,7 +30,7 @@ export async function GET(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error en GET /api/products/[id]:', error);
+    console.error('Error en GET /api/ecommerce/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -36,7 +38,7 @@ export async function GET(
   }
 }
 
-// PATCH /api/products/[id] - Actualizar un producto
+// PATCH /api/ecommerce/[id] - Actualizar una orden de ecommerce
 export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
@@ -45,7 +47,7 @@ export async function PATCH(
     const { id } = await params; // ✅ AWAIT aquí
     const body = await request.json();
 
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const response = await fetch(`${API_URL}/ecommerce/${id}`, {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -56,7 +58,7 @@ export async function PATCH(
     if (!response.ok) {
       const error = await response.json();
       return NextResponse.json(
-        { error: error.message || 'Error al actualizar producto' },
+        { error: error.message || 'Error al actualizar orden de ecommerce' },
         { status: response.status }
       );
     }
@@ -64,7 +66,7 @@ export async function PATCH(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error en PATCH /api/products/[id]:', error);
+    console.error('Error en PATCH /api/ecommerce/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
@@ -72,14 +74,14 @@ export async function PATCH(
   }
 }
 
-// DELETE /api/products/[id] - Eliminar un producto
+// DELETE /api/ecommerce/[id] - Eliminar una orden de ecommerce
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const { id } = await params; // ✅ AWAIT aquí
-    const response = await fetch(`${API_URL}/products/${id}`, {
+    const response = await fetch(`${API_URL}/ecommerce/${id}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -89,7 +91,7 @@ export async function DELETE(
     if (!response.ok) {
       const error = await response.json();
       return NextResponse.json(
-        { error: error.message || 'Error al eliminar producto' },
+        { error: error.message || 'Error al eliminar orden de ecommerce' },
         { status: response.status }
       );
     }
@@ -97,7 +99,7 @@ export async function DELETE(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error('Error en DELETE /api/products/[id]:', error);
+    console.error('Error en DELETE /api/ecommerce/[id]:', error);
     return NextResponse.json(
       { error: 'Error interno del servidor' },
       { status: 500 }
