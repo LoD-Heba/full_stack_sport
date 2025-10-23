@@ -5,6 +5,8 @@ import { useEffect, useState } from 'react';
 import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 import ProductCard from '@/components/shop/ProductCard';
+import ShopNavbar from '@/components/shop/ShopNavbar';
+import Footer from '@/components/common/Footer';
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -51,6 +53,7 @@ export default function ProductsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <ShopNavbar></ShopNavbar>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-8">
@@ -129,6 +132,7 @@ export default function ProductsPage() {
           </div>
         )}
       </div>
+      <Footer></Footer>
     </div>
   );
 }

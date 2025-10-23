@@ -66,15 +66,15 @@ export default function Sidebar({ menuItems: customMenuItems }: SidebarProps) {
 
         {/* Logout Section */}
         <div className="px-4 py-4 border-t border-gray-700">
-          <button
-            className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-800 transition text-red-400 hover:text-red-300"
-            title={!sidebarOpen ? "Cerrar Sesión" : ""}
+          <a
+            className="w-full flex items-center gap-4 px-4 py-3 rounded-lg hover:bg-gray-800 transition"
+            href="/"
           >
             <span className="text-xl flex shrink-0">🚪</span>
             {sidebarOpen && (
-              <span className="text-sm font-medium">Cerrar Sesión</span>
+              <span className="text-sm font-medium">Salir</span>
             )}
-          </button>
+          </a>
         </div>
       </aside>
 

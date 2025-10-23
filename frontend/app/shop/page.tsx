@@ -11,14 +11,15 @@ export default function ShopHomePage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
+  
+ useEffect(() => {
     fetchData();
   }, []);
-
+ 
   const fetchData = async () => {
     try {
-      const [productsRes, categoriesRes] = await Promise.all([
+      setLoading(true);
+      const [productsRes, categoriesRes] = await Promise.all ([
         fetch('/api/products'),
         fetch('/api/categories'),
       ]);
@@ -29,12 +30,13 @@ export default function ShopHomePage() {
         setProducts(productsData.slice(0, 8)); // 8 productos destacados
         setCategories(categoriesData);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
+    } catch (err) {
+      console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
     }
   };
+  
 
   return (
     <div className="min-h-screen bg-gray-50">
