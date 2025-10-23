@@ -1,5 +1,4 @@
-// frontend/app/shop/layout.tsx
-
+"use client";
 import ShopNavbar from "@/components/shop/ShopNavbar";
 import Footer from "@/components/common/Footer";
 
@@ -11,7 +10,7 @@ export default function ShopLayout({
   return (
     <div className="flex flex-col min-h-screen">
       <ShopNavbar />
-      <main className="flex grow">
+      <main className="flex-1">
         {children}
       </main>
       <Footer />

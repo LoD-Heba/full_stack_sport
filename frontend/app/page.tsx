@@ -1,12 +1,13 @@
+// frontend/app/page.tsx
+
 import Footer from "@/components/common/Footer";
 import Navbar from "@/components/common/Navbar";
-import Image from "next/image";
 
 export default function Home() {
   return (
-    <div className="">
-      <Navbar></Navbar>
-      <main className="flex grow">
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           {/* Hero Section */}
           <section className="mb-16">
@@ -19,7 +20,7 @@ export default function Home() {
               </p>
               <a
                 href="/products"
-                className="inline-block px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800"
+                className="inline-block px-8 py-3 bg-black text-white rounded-lg hover:bg-gray-800 transition"
               >
                 Ver Productos
               </a>
@@ -31,7 +32,7 @@ export default function Home() {
             <h2 className="text-3xl font-bold text-black mb-8">Categorías Destacadas</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[1, 2, 3].map((item) => (
-                <div key={item} className="bg-gray-100 rounded-lg p-6 h-48 flex items-center justify-center">
+                <div key={item} className="bg-gray-100 rounded-lg p-6 h-48 flex items-center justify-center hover:shadow-lg transition">
                   <div className="text-center">
                     <p className="text-lg font-semibold text-gray-700">Categoría {item}</p>
                     <p className="text-sm text-gray-500">Ver más</p>
@@ -55,7 +56,7 @@ export default function Home() {
                     <p className="text-sm text-gray-600 mb-3">Descripción corta del producto</p>
                     <div className="flex justify-between items-center">
                       <span className="text-lg font-bold text-black">$XX.XX</span>
-                      <button className="px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800">
+                      <button className="px-3 py-1 bg-black text-white text-sm rounded hover:bg-gray-800 transition">
                         Agregar
                       </button>
                     </div>
@@ -66,7 +67,7 @@ export default function Home() {
           </section>
         </div>
       </main>
-      <Footer></Footer>
+      <Footer />
     </div>
   );
 }

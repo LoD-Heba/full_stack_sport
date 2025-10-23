@@ -12,10 +12,11 @@ export default function ShopNavbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
-  // Cargar usuario del localStorage
+  // Evitar problemas de hidratación
   useEffect(() => {
+    setMounted(true);
     const userData = localStorage.getItem('user');
     if (userData) {
       try {
@@ -24,7 +25,6 @@ export default function ShopNavbar() {
         console.error('Error parsing user data:', error);
       }
     }
-    setIsLoaded(true);
   }, []);
 
   const handleLogout = () => {
@@ -35,18 +35,15 @@ export default function ShopNavbar() {
     router.push('/');
   };
 
-  const cartItems = getTotalItems();
-
-  if (!isLoaded) {
-    return null; // Evita problemas de hidratación
-  }
+  // Obtener items del carrito solo después de montar
+  const cartItems = mounted ? getTotalItems() : 0;
 
   return (
     <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link href="/" className="flex-shrink-0">
+          <Link href="/" className="shrink-0">
             <span className="text-2xl font-bold text-blue-600">SportStore</span>
           </Link>
 
@@ -74,7 +71,7 @@ export default function ShopNavbar() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              {cartItems > 0 && (
+              {mounted && cartItems > 0 && (
                 <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
                   {cartItems > 9 ? '9+' : cartItems}
                 </span>
@@ -82,7 +79,7 @@ export default function ShopNavbar() {
             </Link>
 
             {/* Usuario */}
-            {user ? (
+            {mounted && user ? (
               <div className="relative">
                 <button
                   onClick={() => setShowUserMenu(!showUserMenu)}
@@ -121,7 +118,7 @@ export default function ShopNavbar() {
                   </div>
                 )}
               </div>
-            ) : (
+            ) : mounted ? (
               <>
                 <Link
                   href="/auth/login"
@@ -136,7 +133,7 @@ export default function ShopNavbar() {
                   Registrarse
                 </Link>
               </>
-            )}
+            ) : null}
           </div>
 
           {/* Mobile Menu Button */}
@@ -149,7 +146,7 @@ export default function ShopNavbar() {
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
-              {cartItems > 0 && (
+              {mounted && cartItems > 0 && (
                 <span className="absolute top-0 right-0 bg-red-600 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-semibold">
                   {cartItems}
                 </span>
@@ -195,7 +192,7 @@ export default function ShopNavbar() {
               Nosotros
             </a>
             <div className="border-t pt-2">
-              {user ? (
+              {mounted && user ? (
                 <>
                   <Link
                     href="/shop/my-orders"
@@ -211,7 +208,7 @@ export default function ShopNavbar() {
                     🚪 Cerrar Sesión
                   </button>
                 </>
-              ) : (
+              ) : mounted ? (
                 <>
                   <Link
                     href="/auth/login"
@@ -228,7 +225,7 @@ export default function ShopNavbar() {
                     Registrarse
                   </Link>
                 </>
-              )}
+              ) : null}
             </div>
           </div>
         )}
