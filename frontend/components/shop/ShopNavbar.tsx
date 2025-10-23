@@ -49,13 +49,13 @@ export default function ShopNavbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/products" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link href="/products" className="text-gray-700 hover:text-gray-900 font-medium transition">
               Productos
             </Link>
-            <Link href="/" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link href="/" className="text-gray-700 hover:text-gray-900 font-medium transition">
               Inicio
             </Link>
-            <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+            <a href="#" className="text-gray-700 hover:text-gray-900 font-medium transition">
               Nosotros
             </a>
           </div>

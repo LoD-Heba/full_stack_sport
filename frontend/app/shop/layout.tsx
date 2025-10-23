@@ -1,6 +1,12 @@
+
 "use client";
-import ShopNavbar from "@/components/shop/ShopNavbar";
+import dynamic from 'next/dynamic';
 import Footer from "@/components/common/Footer";
+
+// Deshabilitar SSR para ShopNavbar porque usa CartContext que depende de localStorage
+const ShopNavbar = dynamic(() => import('@/components/shop/ShopNavbar'), {
+  ssr: false,
+});
 
 export default function ShopLayout({
   children,
