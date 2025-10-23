@@ -2,7 +2,6 @@
 "use client";
 import Link from 'next/link';
 import { Product } from '@/types/product';
-import { useCart } from '@/context/CartContext';
 import { useState } from 'react';
 
 interface ProductCardProps {
@@ -10,22 +9,11 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
-  const { addToCart } = useCart();
   const [showAddedMessage, setShowAddedMessage] = useState(false);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    addToCart({
-      id: product.id,
-      productId: product.id,
-      name: product.name,
-      slug: product.slug,
-      price: product.price,
-      quantity: 1,
-      image: product.images?.[0]?.url,
-    });
 
     setShowAddedMessage(true);
     setTimeout(() => setShowAddedMessage(false), 2000);

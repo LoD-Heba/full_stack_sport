@@ -1,6 +1,6 @@
 "use client";
-import Link from 'next/link';
-import { useState } from 'react';
+import Link from "next/link";
+import { useState } from "react";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,13 +16,28 @@ export default function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
-            <Link href="/shop" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link
+              href="/shop"
+              className="text-gray-700 hover:text-gray-900 font-medium"
+            >
               Tienda
             </Link>
-            <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+            <Link
+              href="/dashboard"
+              className="text-gray-700 hover:text-gray-900 font-medium transition flex items-center gap-1"
+            >
+              <span>📊</span> Dashboard
+            </Link>
+            <a
+              href="#"
+              className="text-gray-700 hover:text-gray-900 font-medium"
+            >
               Categorías
             </a>
-            <a href="#" className="text-gray-700 hover:text-gray-900 font-medium">
+            <a
+              href="#"
+              className="text-gray-700 hover:text-gray-900 font-medium"
+            >
               Nosotros
             </a>
           </div>
@@ -49,12 +64,32 @@ export default function Navbar() {
             className="md:hidden p-2 text-gray-700 hover:text-gray-900"
           >
             {isOpen ? (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             ) : (
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <svg
+                className="w-6 h-6"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 6h16M4 12h16M4 18h16"
+                />
               </svg>
             )}
           </button>
@@ -69,10 +104,22 @@ export default function Navbar() {
             >
               Tienda
             </Link>
-            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+            <Link
+              href="/dashboard"
+              className="text-gray-700 hover:text-gray-900 font-medium transition flex items-center gap-1"
+            >
+              <span>📊</span> Dashboard
+            </Link>
+            <a
+              href="#"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+            >
               Categorías
             </a>
-            <a href="#" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded">
+            <a
+              href="#"
+              className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded"
+            >
               Nosotros
             </a>
             <div className="border-t pt-2">

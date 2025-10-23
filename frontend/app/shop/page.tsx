@@ -6,20 +6,24 @@ import Link from 'next/link';
 import { Product } from '@/types/product';
 import { Category } from '@/types/category';
 import ProductCard from '@/components/shop/ProductCard';
+import Footer from '@/components/common/Footer';
 
-export default function ShopHomePage() {
+export default function ShopPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [priceRange, setPriceRange] = useState<'all' | 'low' | 'mid' | 'high'>('all');
   
- useEffect(() => {
+  useEffect(() => {
     fetchData();
   }, []);
  
   const fetchData = async () => {
     try {
       setLoading(true);
-      const [productsRes, categoriesRes] = await Promise.all ([
+      const [productsRes, categoriesRes] = await Promise.all([
         fetch('/api/products'),
         fetch('/api/categories'),
       ]);
@@ -27,7 +31,7 @@ export default function ShopHomePage() {
       if (productsRes.ok && categoriesRes.ok) {
         const productsData = await productsRes.json();
         const categoriesData = await categoriesRes.json();
-        setProducts(productsData.slice(0, 8)); // 8 productos destacados
+        setProducts(productsData);
         setCategories(categoriesData);
       }
     } catch (err) {
@@ -36,103 +40,227 @@ export default function ShopHomePage() {
       setLoading(false);
     }
   };
-  
+
+  const filteredProducts = products.filter(product => {
+    const matchesSearch =
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.slug.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = !selectedCategory || product.category.id === selectedCategory;
+    
+    let matchesPrice = true;
+    if (priceRange === 'low') matchesPrice = product.price < 100;
+    else if (priceRange === 'mid') matchesPrice = product.price >= 100 && product.price < 500;
+    else if (priceRange === 'high') matchesPrice = product.price >= 500;
+    
+    return matchesSearch && matchesCategory && matchesPrice;
+  });
 
   return (
     <div className="min-h-screen bg-gray-50">
+      
       {/* Hero Section */}
-      <section className="bg-linear-to-r from-blue-600 to-blue-800 text-white py-16 md:py-24">
+      <section className="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            SportStore
+            Tienda SportStore
           </h1>
-          <p className="text-lg md:text-xl text-blue-100 mb-8 max-w-2xl">
-            Encuentra todo lo que necesitas para tu entrenamiento. Ropa deportiva, calzado y accesorios de las mejores marcas.
+          <p className="text-lg md:text-xl text-blue-100 max-w-2xl">
+            Descubre nuestra colección completa de productos deportivos
           </p>
-          <Link
-            href="/products"
-            className="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition"
-          >
-            Explorar Catálogo
-          </Link>
         </div>
       </section>
 
-      {/* Categorías Destacadas */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Categorías</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {categories.slice(0, 3).map((category) => (
-              <Link
-                key={category.id}
-                href={`/categories/${category.slug}`}
-                className="group"
-              >
-                <div className="bg-linear-to-br from-gray-100 to-gray-200 rounded-lg p-8 h-48 flex flex-col items-center justify-center text-center group-hover:shadow-lg transition">
-                  {category.imageUrl && (
-                    <img
-                      src={category.imageUrl}
-                      alt={category.name}
-                      className="h-24 w-24 object-cover rounded-full mb-4"
-                      onError={(e) => (e.currentTarget.style.display = 'none')}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Breadcrumb */}
+        <div className="mb-6">
+          <nav className="flex text-sm text-gray-600">
+            <Link href="/" className="hover:text-blue-600">Inicio</Link>
+            <span className="mx-2">/</span>
+            <span className="text-gray-900 font-medium">Tienda</span>
+          </nav>
+        </div>
+
+        {/* Stats */}
+        <div className="bg-white rounded-lg shadow p-4 mb-6">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <p className="text-sm text-gray-600">Total de productos</p>
+              <p className="text-2xl font-bold text-gray-900">{filteredProducts.length}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Categorías</p>
+              <p className="text-2xl font-bold text-gray-900">{categories.length}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-600">Disponibles</p>
+              <p className="text-2xl font-bold text-green-600">
+                {filteredProducts.filter(p => p.isAvailable && p.stock > 0).length}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Sidebar - Filtros */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow p-6 sticky top-6 space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-4">Filtros</h3>
+              </div>
+
+              {/* Búsqueda */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Buscar
+                </label>
+                <input
+                  type="text"
+                  placeholder="Buscar productos..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+              </div>
+
+              {/* Categorías */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Categoría
+                </label>
+                <select
+                  value={selectedCategory}
+                  onChange={(e) => setSelectedCategory(e.target.value)}
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Todas</option>
+                  {categories.map(cat => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Rango de Precio */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Rango de Precio
+                </label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="price"
+                      value="all"
+                      checked={priceRange === 'all'}
+                      onChange={(e) => setPriceRange(e.target.value as any)}
+                      className="w-4 h-4 text-blue-600"
                     />
-                  )}
-                  <h3 className="text-xl font-semibold text-gray-900 group-hover:text-blue-600 transition">
-                    {category.name}
-                  </h3>
-                  <p className="text-sm text-gray-600 mt-2">
-                    {category.description?.slice(0, 50)}...
+                    <span className="ml-2 text-sm text-gray-700">Todos</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="price"
+                      value="low"
+                      checked={priceRange === 'low'}
+                      onChange={(e) => setPriceRange(e.target.value as any)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Menos de Bs100</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="price"
+                      value="mid"
+                      checked={priceRange === 'mid'}
+                      onChange={(e) => setPriceRange(e.target.value as any)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Bs100 - Bs500</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="radio"
+                      name="price"
+                      value="high"
+                      checked={priceRange === 'high'}
+                      onChange={(e) => setPriceRange(e.target.value as any)}
+                      className="w-4 h-4 text-blue-600"
+                    />
+                    <span className="ml-2 text-sm text-gray-700">Más de Bs500</span>
+                  </label>
+                </div>
+              </div>
+
+              {/* Limpiar Filtros */}
+              {(searchTerm || selectedCategory || priceRange !== 'all') && (
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategory('');
+                    setPriceRange('all');
+                  }}
+                  className="w-full px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition text-sm font-medium"
+                >
+                  Limpiar Filtros
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Productos */}
+          <div className="lg:col-span-3">
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                <p className="text-gray-600 mt-4">Cargando productos...</p>
+              </div>
+            ) : filteredProducts.length === 0 ? (
+              <div className="bg-white rounded-lg shadow p-12 text-center">
+                <div className="text-6xl mb-4">🔍</div>
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  No se encontraron productos
+                </h3>
+                <p className="text-gray-600 mb-6">
+                  Intenta ajustar los filtros o busca otro término
+                </p>
+                <button
+                  onClick={() => {
+                    setSearchTerm('');
+                    setSelectedCategory('');
+                    setPriceRange('all');
+                  }}
+                  className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                >
+                  Limpiar Filtros
+                </button>
+              </div>
+            ) : (
+              <>
+                {/* Header de resultados */}
+                <div className="mb-6 flex justify-between items-center">
+                  <p className="text-gray-600">
+                    Mostrando <span className="font-semibold">{filteredProducts.length}</span> productos
                   </p>
                 </div>
-              </Link>
-            ))}
+
+                {/* Grid de productos */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* Productos Destacados */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center mb-8">
-            <h2 className="text-3xl font-bold text-gray-900">Productos Destacados</h2>
-            <Link
-              href="/products"
-              className="text-blue-600 hover:text-blue-800 font-semibold"
-            >
-              Ver Todo →
-            </Link>
-          </div>
-
-          {loading ? (
-            <div className="text-center py-12">
-              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              {products.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* CTA Section */}
-      <section className="bg-blue-600 text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">¿Necesitas más productos?</h2>
-          <p className="text-lg text-blue-100 mb-8">
-            Explora nuestro catálogo completo y encuentra todo lo que buscas
-          </p>
-          <Link
-            href="/products"
-            className="inline-block px-8 py-3 bg-white text-blue-600 rounded-lg font-semibold hover:bg-gray-100 transition"
-          >
-            Ver Catálogo Completo
-          </Link>
-        </div>
-      </section>
+      <Footer />
     </div>
   );
 }

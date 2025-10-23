@@ -3,7 +3,7 @@
 "use client";
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCart } from '@/context/CartContext';
+import { useCart } from '@/app/shop/cart/CartContext';
 
 export default function CheckoutPage() {
   const router = useRouter();

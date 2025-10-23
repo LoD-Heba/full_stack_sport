@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 {/* Stats Grid Example */}
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-8">
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Total Usuarios</p>
@@ -43,7 +43,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <span className="text-4xl opacity-20">👥</span>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Productos</p>
@@ -54,7 +54,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <span className="text-4xl opacity-20">📦</span>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Órdenes</p>
@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                       <span className="text-4xl opacity-20">🛒</span>
                     </div>
                   </div>
-                  <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
+                  <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200">
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-sm text-gray-600">Ingresos</p>

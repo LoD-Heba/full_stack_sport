@@ -11,7 +11,7 @@ interface StatsCardProps {
 
 export default function StatsCard({ label, value, icon, trend }: StatsCardProps) {
   return (
-    <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
+    <div className="bg-linear-to-br from-gray-50 to-gray-100 rounded-lg p-6 border border-gray-200 hover:shadow-md transition-shadow">
       <div className="flex items-center justify-between">
         <div className="flex-1">
           <p className="text-sm text-gray-600">{label}</p>
