@@ -17,7 +17,6 @@ import {
 import { EcommerceService } from './ecommerce.service';
 import { CreateEcommerceDto } from './dto/create-ecommerce.dto';
 import { UpdateEcommerceDto } from './dto/update-ecommerce.dto';
-import { JwtUserAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('ecommerce')
 export class EcommerceController {
@@ -32,7 +31,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor)
    */
   @Post()
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createEcommerceDto: CreateEcommerceDto, @Req() req) {
     const vendorId = req.user.id;
@@ -56,7 +54,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor)
    */
   @Get()
-  @UseGuards(JwtUserAuthGuard)
   async findAll(@Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
 
@@ -80,7 +77,6 @@ export class EcommerceController {
    * @access Private (Todos los roles autenticados)
    */
   @Get('my-orders')
-  @UseGuards(JwtUserAuthGuard)
   async findMyOrders(@Req() req, @Query('type') type?: string) {
     const userId = req.user.id;
     const userRole = req.user.role?.name?.toLowerCase();
@@ -113,7 +109,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor - solo propias)
    */
   @Get('vendor/:vendorId')
-  @UseGuards(JwtUserAuthGuard)
   async findByVendor(
     @Param('vendorId', ParseUUIDPipe) vendorId: string,
     @Req() req,
@@ -145,7 +140,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor, Cliente - solo propias)
    */
   @Get('client/:clientId')
-  @UseGuards(JwtUserAuthGuard)
   async findByClient(
     @Param('clientId', ParseUUIDPipe) clientId: string,
     @Req() req,
@@ -176,7 +170,6 @@ export class EcommerceController {
    * @access Private (Administrador)
    */
   @Get('statistics')
-  @UseGuards(JwtUserAuthGuard)
   async getStatistics(@Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
 
@@ -198,7 +191,6 @@ export class EcommerceController {
    * @access Private (Todos los roles autenticados)
    */
   @Get(':id')
-  @UseGuards(JwtUserAuthGuard)
   async findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
     const userId = req.user.id;
@@ -233,7 +225,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor)
    */
   @Patch(':id')
-  @UseGuards(JwtUserAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateEcommerceDto: UpdateEcommerceDto,
@@ -273,7 +264,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor)
    */
   @Delete(':id')
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.OK)
   async remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
@@ -294,7 +284,6 @@ export class EcommerceController {
    * @access Private (Administrador, Vendedor)
    */
   @Patch(':id/mark-as-sold')
-  @UseGuards(JwtUserAuthGuard)
   async markAsSold(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
 
@@ -316,7 +305,6 @@ export class EcommerceController {
    * @access Private (Administrador)
    */
   @Patch(':id/mark-as-pending')
-  @UseGuards(JwtUserAuthGuard)
   async markAsPending(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
 
@@ -338,7 +326,6 @@ export class EcommerceController {
    * @access Private (Todos los roles autenticados)
    */
   @Get(':id/invoice')
-  @UseGuards(JwtUserAuthGuard)
   async getInvoice(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
     const userId = req.user.id;

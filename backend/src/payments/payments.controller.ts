@@ -14,7 +14,6 @@ import {
   RawBodyRequest,
 } from '@nestjs/common';
 import { PaymentsService } from './payments.service';
-import { JwtUserAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { Request } from 'express';
 
 @Controller('payments')
@@ -29,7 +28,6 @@ export class PaymentsController {
    * @access Private (Cliente propietario, Administrador, Vendedor)
    */
   @Post('create-intent/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.OK)
   async createPaymentIntent(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
@@ -93,7 +91,6 @@ export class PaymentsController {
    * @access Private (Cliente propietario, Administrador, Vendedor)
    */
   @Get('status/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   async getPaymentStatus(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
     @Req() req,
@@ -123,7 +120,6 @@ export class PaymentsController {
    * @access Private (Administrador, Vendedor, Cliente propietario)
    */
   @Post('cancel/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.OK)
   async cancelPaymentIntent(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
@@ -154,7 +150,6 @@ export class PaymentsController {
    * @access Private (Administrador, Vendedor)
    */
   @Post('confirm-manual/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.OK)
   async confirmManualPayment(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
@@ -188,7 +183,6 @@ export class PaymentsController {
    * @access Private (Administrador)
    */
   @Post('refund/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   @HttpCode(HttpStatus.OK)
   async refundPayment(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
@@ -224,7 +218,6 @@ export class PaymentsController {
    * @access Private (Cliente propietario, Administrador, Vendedor)
    */
   @Get('history/:clientId')
-  @UseGuards(JwtUserAuthGuard)
   async getPaymentHistory(
     @Param('clientId', ParseUUIDPipe) clientId: string,
     @Req() req,
@@ -255,7 +248,6 @@ export class PaymentsController {
    * @access Private (Administrador)
    */
   @Get('statistics')
-  @UseGuards(JwtUserAuthGuard)
   async getPaymentStatistics(@Req() req) {
     const userRole = req.user.role?.name?.toLowerCase();
 
@@ -275,7 +267,6 @@ export class PaymentsController {
    * @access Private (Todos los roles autenticados)
    */
   @Get('check/:ecommerceId')
-  @UseGuards(JwtUserAuthGuard)
   async checkPaymentIntent(
     @Param('ecommerceId', ParseUUIDPipe) ecommerceId: string,
   ) {

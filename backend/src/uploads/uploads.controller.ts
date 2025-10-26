@@ -13,33 +13,6 @@ import { readdirSync } from 'fs';
 
 @Controller('uploads')
 export class UploadsController {
-  // Configurar Multer
-  private storage = diskStorage({
-    destination: './uploads', // Carpeta donde se guardan
-    filename: (req, file, callback) => {
-      // Generar nombre único: timestamp-random-originalname
-      const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-      const ext = extname(file.originalname);
-      const filename = `${uniqueSuffix}${ext}`;
-      callback(null, filename);
-    },
-  });
-
-  // Validar tipo de archivo
-  private fileFilter = (req, file, callback) => {
-    const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-    if (allowedMimes.includes(file.mimetype)) {
-      callback(null, true);
-    } else {
-      callback(
-        new BadRequestException(
-          'Solo se permiten imágenes (jpg, jpeg, png, webp)',
-        ),
-        false,
-      );
-    }
-  };
-
   /**
    * Subir una imagen
    * POST /uploads
@@ -84,14 +57,14 @@ export class UploadsController {
       throw new BadRequestException('No se proporcionó ningún archivo');
     }
 
-    // Retornar la URL completa de la imagen
-    const imageUrl = `/images/${file.filename}`; // ✅ Solo la ruta relativa
+    // 🔹 Construir la URL COMPLETA correctamente
+    const baseUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+    const imageUrl = `${baseUrl}/images/${file.filename}`;
 
-    // Retornar solo el nombre del archivo, NO la URL completa
     return {
       message: 'Imagen subida correctamente',
       filename: file.filename,
-      url: file.filename, // ✅ Solo el nombre del archivo
+      url: imageUrl, // 🔹 IMPORTANTE: URL completa, no solo el nombre
       size: file.size,
       mimetype: file.mimetype,
     };
@@ -109,7 +82,7 @@ export class UploadsController {
 
     return files.map((filename) => ({
       filename,
-      url: `/images/${filename}`, // ✅ Solo la ruta relativa
+      url: `${baseUrl}/images/${filename}`,
     }));
   }
 }

@@ -5,7 +5,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './entities/product.entity';
 import { DataSource, Repository } from 'typeorm';
 import { Category } from 'src/categories/entities/category.entity';
-import { promises } from 'dns';
 import { ProductImage } from './entities/product-image.entity';
 import { PaginationDto } from 'src/common/dto/pagination.dto';
 
@@ -19,7 +18,8 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private readonly producImageRepository: Repository<ProductImage>,
     private readonly dataSource: DataSource,
-  ) {}
+  ) { }
+
   async create(createProductDto: CreateProductDto) {
     const { categoryId, images = [], ...producData } = createProductDto;
     const category = await this.findCategoryOrThrow(categoryId);
@@ -27,18 +27,20 @@ export class ProductsService {
     const product = this.productRepository.create({
       ...producData,
       category,
-      images: images.map((url) => {
-        const cleanUrl = url.replace(/^\/images\//, '').replace(/^images\//, '');
-    return this.producImageRepository.create({ url: `/images/${cleanUrl}` });
+      images: images.map((imageUrl) => {
+        // 🔹 Guarda la URL COMPLETA tal como viene del uploads controller
+        // Ya viene como: http://localhost:3001/images/filename.webp
+        return this.producImageRepository.create({ url: imageUrl });
       }),
     });
+
     return this.productRepository.save(product);
   }
 
   async findAll(PaginationDto: PaginationDto) {
     return await this.productRepository.find({
       where: { isActive: true, category: { isActive: true } },
-      relations: ['category', 'images'],
+      relations: ['category', 'images'], 
       order: { createdAt: 'DESC' },
     });
   }
@@ -46,54 +48,56 @@ export class ProductsService {
   async findOne(id: string) {
     const product = await this.productRepository.findOne({
       where: {
-        id,
-        isActive: true,
-        category: { isActive: true },
+        id, isActive: true, category: { isActive: true }
       },
-      relations: ['category', 'images'], // 🔹 Aquí agregamos category
+      relations: ['category', 'images'],
     });
+    
     if (!product) {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
+    
     return product;
   }
 
   async update(id: string, updateProductDto: UpdateProductDto) {
     const { categoryId, images, ...productData } = updateProductDto;
 
-    // verifica si el producto existe y si esta activo.
+    // verifica si el producto existe y si está activo
     await this.findOne(id);
 
     const product = await this.productRepository.preload({
-      id,
-      ...productData,
+      id, ...productData
     });
-    //verifica sila categoria existe para poder actualizar
+
+    // verifica si la categoría existe para poder actualizar 
     if (categoryId) {
       product!.category = await this.findCategoryOrThrow(categoryId);
     }
-
+    
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
       if (images) {
-        // Elimina las imagenes existentes
+        // Elimina las imágenes existentes
         await queryRunner.manager.delete(ProductImage, { product: { id } });
 
-        // Crea nuevas imagenes y las asignos al producto
-        product!.images = images.map((url) =>
-          this.producImageRepository.create({ url }),
-        );
+        // 🔹 Crea nuevas imágenes - URLs completas tal como vienen
+        product!.images = images.map((imageUrl) => {
+          return this.producImageRepository.create({ url: imageUrl });
+        });
       }
-      //guarda e prodcuto actualizado
+
+      // guarda el producto actualizado 
       await queryRunner.manager.save(Product, product!);
       await queryRunner.commitTransaction();
 
       return this.findOne(id);
-    } catch {
+    } catch (error) {
       await queryRunner.rollbackTransaction();
+      throw error;
     } finally {
       await queryRunner.release();
     }
@@ -101,9 +105,11 @@ export class ProductsService {
 
   async remove(id: string) {
     const product = await this.findOne(id);
-    await this.productRepository.update(id, { isActive: false });
+    await this.productRepository.update(
+      id, { isActive: false }
+    );
     return {
-      message: `product (${product.name}) has been deactivated`,
+      message: `product (${product.name}) has been deactivated`
     };
   }
 
@@ -119,11 +125,10 @@ export class ProductsService {
     return category;
   }
 
-  // src/products/products.service.ts
   async findByCategory(categoryId: string) {
     return await this.productRepository.find({
       where: { category: { id: categoryId } },
-      relations: ['category', 'images'],
+      relations: ['category', 'images'], 
     });
   }
 }

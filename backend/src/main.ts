@@ -5,15 +5,18 @@ import { ConfigService } from '@nestjs/config';
 import { AllExceptionsFilter } from './common/filters/all-exception.filter';
 import * as express from 'express';
 import { join } from 'path';
-
+import { NestExpressApplication } from '@nestjs/platform-express';
 async function bootstrap() {
   // Crear la aplicación con rawBody habilitado para webhooks de Stripe
-  const app = await NestFactory.create(AppModule, {
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
   });
 
   // Servir archivos estáticos de imágenes
-  app.use('/images', express.static(join(__dirname, '..', 'uploads')));
+ app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+     prefix: '/images/',
+   });
+  
 
   // Configurar CORS
   app.enableCors({
