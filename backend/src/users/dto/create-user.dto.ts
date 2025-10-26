@@ -68,9 +68,22 @@ export class CreateUserDto {
   })
   @Transform(({ value }) => value?.toString().trim())
   address: string;
+  
+  @IsOptional()
+  @IsString({ message: 'El nombre de la empresa debe ser una cadena de texto' })
+  @Length(3, 100, {
+    message: 'El nombre de la empresa debe tener entre 3 y 100 caracteres',
+  })
+  @Transform(({ value }) => value?.toString().trim())
+  companyName?: string;
+
+  @IsOptional()
+  @IsString({ message: 'El NIT debe ser una cadena de texto' })
+  @Matches(/^\d{5,15}$/, { message: 'Formato de NIT inválido' })
+  @Transform(({ value }) => value?.toString().trim())
+  taxId?: string;
 
   @IsUUID(4, { message: 'Debe ser un UUID válido' })
   @IsNotEmpty({ message: 'El rol es obligatorio' })
   roleId: string;
 }
-

@@ -1,24 +1,36 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe, UseGuards, Req } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  ParseUUIDPipe,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { EcommerceService } from './ecommerce.service';
 import { CreateEcommerceDto } from './dto/create-ecommerce.dto';
 import { UpdateEcommerceDto } from './dto/update-ecommerce.dto';
-import { JwtAuthGuard } from 'src/auth-client/guards/jwt-auth.guard';
+import { JwtUserAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 
 @Controller('ecommerce')
 export class EcommerceController {
-  constructor(private readonly ecommerceService: EcommerceService) { }
+  constructor(private readonly ecommerceService: EcommerceService) {}
 
   @Post()
-  create(@Body() createEcommerceDto: CreateEcommerceDto) {
-    return this.ecommerceService.create(createEcommerceDto);
+  @UseGuards(JwtUserAuthGuard) // Proteger endpoint
+  create(@Body() createEcommerceDto: CreateEcommerceDto, @Req() req) {
+    const vendorId = req.user.id; // Usuario autenticado = vendedor
+    return this.ecommerceService.create(createEcommerceDto, vendorId);
   }
 
   @Get('my-orders')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtUserAuthGuard) // Ya cambiado antes
   async findMyOrders(@Req() req) {
-    console.log('Usuario en JWT:', req.user);
-    const clientId = req.user.id;
-    return this.ecommerceService.findByClient(clientId);
+    const userId = req.user.id;
+    return this.ecommerceService.findByUser(userId); // Método renombrado
   }
 
   @Get()
@@ -32,7 +44,10 @@ export class EcommerceController {
   }
 
   @Patch(':id')
-  update(@Param('id', ParseUUIDPipe) id: string, @Body() updateEcommerceDto: UpdateEcommerceDto) {
+  update(
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateEcommerceDto: UpdateEcommerceDto,
+  ) {
     return this.ecommerceService.update(id, updateEcommerceDto);
   }
 

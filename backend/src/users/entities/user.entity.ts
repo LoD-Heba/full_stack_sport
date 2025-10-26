@@ -52,11 +52,21 @@ export class User {
   role: Role;
 
   @OneToMany(() => Order, (order) => order.users, { eager: true })
-  @JoinColumn({ name: 'role_id'})
+  @JoinColumn({ name: 'role_id' })
   orders: Order[];
 
-  @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.users, { eager: true })
-  ecommerce: Ecommerce[];
+  @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.client)
+  ecommerceAsClient: Ecommerce[]; // Pedidos donde este usuario es el CLIENTE
+
+  @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.users)
+  ecommerceAsVendor: Ecommerce[]; // Pedidos que este usuario REGISTRÓ/PROCESÓ
+
+  // También agregar estas columnas si no las tienes:
+  @Column({ length: 100, nullable: true, name: 'company_name' })
+  companyName?: string;
+
+  @Column({ length: 20, nullable: true, name: 'tax_id' })
+  taxId?: string;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

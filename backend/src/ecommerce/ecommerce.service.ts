@@ -6,7 +6,7 @@ import { Ecommerce } from './entities/ecommerce.entity';
 import { Repository } from 'typeorm';
 import { ecommerceDetail } from './entities/ecommerceDetail.entity';
 import { Product } from 'src/products/entities/product.entity';
-import { Client } from 'src/clients/entities/client.entity';
+import { User } from 'src/users/entities/user.entity';
 
 @Injectable()
 export class EcommerceService {
@@ -15,21 +15,32 @@ export class EcommerceService {
     private readonly ecommerceRepository: Repository<Ecommerce>,
     @InjectRepository(ecommerceDetail)
     private readonly ecommerceDetailRepository: Repository<ecommerceDetail>,
-    @InjectRepository(Client)
-    private readonly clientRepository: Repository<Client>,
-  ) { }
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
+  ) {}
 
   async create(createEcommerceDto: CreateEcommerceDto) {
-    const { clientId, nameClient, nameCompany, status = 'Pendiente', total, userId, ecommerceDetail } = createEcommerceDto;
+    const {
+      clientId,
+      nameClient,
+      nameCompany,
+      status = 'Pendiente',
+      vendorId: dtoVendorId,
+      ecommerceDetail,
+    } = createEcommerceDto;
+
+    // El vendedor puede venir del DTO o del parámetro (JWT)
+    const finalVendorId = vendorId || dtoVendorId;
 
     const ecommerce = this.ecommerceRepository.create({
-      client: { id: clientId } as any,
+      client: { id: clientId } as any, // Usuario que COMPRA
+      users: { id: finalVendorId } as any, // Usuario que REGISTRA
       nameClient,
       nameCompany,
       status,
       total: 0,
-      users: { id: userId } as any,
     });
+
     const savedEcommerce = await this.ecommerceRepository.save(ecommerce);
 
     let totalEcommerce = 0;
@@ -38,11 +49,16 @@ export class EcommerceService {
 
     for (const detail of ecommerceDetail) {
       //Obtenemos el producto para sacar su precio
-      const product = await this.ecommerceDetailRepository.manager.findOne(Product, {
-        where: { id: detail.productId }
-      });
+      const product = await this.ecommerceDetailRepository.manager.findOne(
+        Product,
+        {
+          where: { id: detail.productId },
+        },
+      );
       if (!product) {
-        throw new NotFoundException(`producto con el id ${detail.productId} no existe`);
+        throw new NotFoundException(
+          `producto con el id ${detail.productId} no existe`,
+        );
       }
 
       const unitPrice = product.price;
@@ -60,10 +76,11 @@ export class EcommerceService {
       detailsToSave.push(ecommerceDetail);
 
       product.stock -= detail.quantity;
-      await this.ecommerceDetailRepository.manager.save(product)
-    };
+      await this.ecommerceDetailRepository.manager.save(product);
+    }
 
-    const savedDetails = await this.ecommerceDetailRepository.save(detailsToSave);
+    const savedDetails =
+      await this.ecommerceDetailRepository.save(detailsToSave);
 
     //Actualiza el total del pedido Web
     savedEcommerce.total = totalEcommerce;
@@ -75,10 +92,7 @@ export class EcommerceService {
 
   async findAll() {
     return await this.ecommerceRepository.find({
-      where: [
-        { status: 'Pendiente' },
-        { status: 'Vendido' },
-      ],
+      where: [{ status: 'Pendiente' }, { status: 'Vendido' }],
       relations: [
         'ecommerceDetail',
         'ecommerceDetail.product', // ✅ Trae la info de cada producto en los detalles
@@ -88,54 +102,73 @@ export class EcommerceService {
     });
   }
 
-
   async findOne(id: string) {
     const ecommerce = await this.ecommerceRepository.findOne({
       where: [
         { id, status: 'Pendiente' },
         { id, status: 'Vendido' },
       ],
-      relations: ['ecommerceDetail',
+      relations: [
+        'ecommerceDetail',
         'client',
         'users',
-        'ecommerceDetail.product'
+        'ecommerceDetail.product',
       ],
     });
-    if (!ecommerce) throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
+    if (!ecommerce)
+      throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
     return ecommerce;
   }
 
   async update(id: string, updateEcommerceDto: UpdateEcommerceDto) {
-  const ecommerce = await this.findOne(id);
-  if (!ecommerce) {
-    throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
-  }
-  
-  const updatedEcommerce = await this.ecommerceRepository.preload({
-    id,
-    ...updateEcommerceDto,
-  });
+    const ecommerce = await this.findOne(id);
+    if (!ecommerce) {
+      throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
+    }
 
-  if (!updatedEcommerce) {
-    throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
-  }
+    const updatedEcommerce = await this.ecommerceRepository.preload({
+      id,
+      ...updateEcommerceDto,
+    });
 
-  return await this.ecommerceRepository.save(updatedEcommerce);
-}
+    if (!updatedEcommerce) {
+      throw new NotFoundException(`ecommerce con el id ${id} no encontrado`);
+    }
+
+    return await this.ecommerceRepository.save(updatedEcommerce);
+  }
 
   async remove(id: string) {
     const ecommerce = await this.findOne(id);
-    await this.ecommerceRepository.update(
-      id, { status: 'Rechazado' });
+    await this.ecommerceRepository.update(id, { status: 'Rechazado' });
 
-    return { message: `ecommerce (${ecommerce.client.firstName}) fue Rechazado correctamente` };
+    return {
+      message: `ecommerce (${ecommerce.client.firstName}) fue Rechazado correctamente`,
+    };
   }
 
-  async findByClient(clientId: string): Promise<Ecommerce[]> {
-  const client = await this.clientRepository.findOne({
-    where:{id: clientId},
-    relations:['ecommerce', 'ecommerce.ecommerceDetail', 'ecommerce.ecommerceDetail.product']
-  });
-  return client?.ecommerce || [];
-}
+  async findByUser(userId: string): Promise<Ecommerce[]> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'ecommerceAsClient',
+        'ecommerceAsClient.ecommerceDetail',
+        'ecommerceAsClient.ecommerceDetail.product',
+      ],
+    });
+    return user?.ecommerceAsClient || [];
+  }
+
+  async findByVendor(userId: string): Promise<Ecommerce[]> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'ecommerceAsVendor', // Pedidos que procesó
+        'ecommerceAsVendor.ecommerceDetail',
+        'ecommerceAsVendor.ecommerceDetail.product',
+        'ecommerceAsVendor.client', // Info del cliente que compró
+      ],
+    });
+    return user?.ecommerceAsVendor || [];
+  }
 }

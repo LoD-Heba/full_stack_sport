@@ -8,8 +8,6 @@ import { ProductsModule } from './products/products.module';
 import { RolesModule } from './roles/roles.module';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
-import { ClientsModule } from './clients/clients.module';
-import { AuthClientModule } from './auth-client/auth-client.module';
 import { OrdersModule } from './orders/orders.module';
 import { EcommerceModule } from './ecommerce/ecommerce.module';
 import { ReportOrderPdfModule } from './reportOrders-pdf/report-pdf.module';
@@ -31,8 +29,6 @@ import { UploadsModule } from './uploads/uploads.module';
     RolesModule,
     UsersModule,
     AuthModule,
-    ClientsModule,
-    AuthClientModule,
     OrdersModule,
     ReportOrderPdfModule,
     ReportEcommercePdfModule,
