@@ -20,14 +20,16 @@ export class UsersController {
 
   /**
    * Crea un nuevo usuario (REGISTRO PÚBLICO)
+   * Si se proporciona roleId, se asigna ese rol
+   * Si NO se proporciona roleId, se asigna automáticamente el rol "Cliente"
    * @route POST /users
    * @access Public
    */
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
-    const { roleId, ...userData } = createUserDto;
-    return this.usersService.create(userData);
+    // ✅ Ahora pasamos el DTO completo, incluyendo roleId si existe
+    return this.usersService.create(createUserDto);
   }
 
   /**
@@ -51,7 +53,7 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
-    // No permitir cambio de rol
+    // No permitir cambio de rol en la ruta de perfil
     const { roleId, ...safeUpdateDto } = updateUserDto;
     return this.usersService.update(id, safeUpdateDto);
   }
@@ -87,7 +89,7 @@ export class UsersController {
   }
 
   /**
-   * Actualiza un usuario existente
+   * Actualiza un usuario existente (permite cambiar rol)
    * @route PATCH /users/:id
    * @access Public (SOLO PARA DESARROLLO)
    */
@@ -96,6 +98,7 @@ export class UsersController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
   ) {
+    // ✅ En esta ruta SÍ permitimos cambiar el rol
     return this.usersService.update(id, updateUserDto);
   }
 
