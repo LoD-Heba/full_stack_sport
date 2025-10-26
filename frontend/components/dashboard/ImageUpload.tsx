@@ -54,7 +54,11 @@ export default function ImageUpload({ onUploadSuccess, currentImages = [] }: Ima
     } finally {
       setUploading(false);
     }
+
+    
   };
+
+  
 
   return (
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
