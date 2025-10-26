@@ -20,7 +20,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [formData, setFormData] = useState<CreateProductDto>({
     name: "",
     description: "",
-    slug: "",
     price: 0,
     stock: 0,
     isAvailable: true,
@@ -54,7 +53,6 @@ export default function ProductForm({ productId }: ProductFormProps) {
       setFormData({
         name: data.name,
         description: data.description || "",
-        slug: data.slug,
         price: data.price,
         stock: data.stock,
         isAvailable: data.isAvailable,

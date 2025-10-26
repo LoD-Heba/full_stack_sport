@@ -1,4 +1,3 @@
-
 export interface ProductImage {
   id: string;
   url: string;
@@ -10,7 +9,7 @@ export interface Product {
   id: string;
   name: string;
   description?: string;
-  slug: string;
+  slug?: string;
   price: number;
   stock: number;
   isAvailable: boolean;
@@ -18,7 +17,7 @@ export interface Product {
   category: {
     id: string;
     name: string;
-    slug: string;
+    slug?: string;
   };
   images?: ProductImage[];
   createdAt: Date;

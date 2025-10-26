@@ -66,7 +66,7 @@ export default function ProductsPage() {
   const filteredProducts = products.filter(product => {
     const matchesSearch =
       product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      product.slug.toLowerCase().includes(searchTerm.toLowerCase());
+      product.slug?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = !selectedCategory || product.category.id === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -168,7 +168,7 @@ export default function ProductsPage() {
                         <div className="text-sm font-medium text-gray-900">
                           {product.name}
                         </div>
-                        <code className="text-xs text-gray-500">{product.slug}</code>
+                        {product.slug && <code className="text-xs text-gray-500">{product.slug}</code>}
                       </div>
                     </div>
                   </td>
