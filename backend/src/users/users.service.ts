@@ -171,6 +171,32 @@ export class UsersService {
   }
 
   /**
+   * Obtiene todos los pedidos de un usuario
+   * Incluye tanto pedidos (orders) como pedidos de ecommerce
+   */
+  async getUserOrders(userId: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id: userId },
+      relations: [
+        'orders',
+        'orders.products',
+        'ecommerceAsClient',
+        'ecommerceAsClient.ecommerceDetails',
+        'ecommerceAsClient.ecommerceDetails.product',
+      ],
+    });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario con id ${userId} no encontrado`);
+    }
+
+    return {
+      orders: user.orders || [],
+      ecommerceOrders: user.ecommerceAsClient || [],
+    };
+  }
+
+  /**
    * Método privado para buscar y validar un rol
    */
   private async findRoleOrThrow(roleId: string): Promise<Role> {

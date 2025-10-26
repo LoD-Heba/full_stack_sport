@@ -8,6 +8,6 @@ export const jwtConfig = (configService: ConfigService): JwtModuleOptions => ({
   // Configurar el tiempo de expiración del token
   signOptions: {
     // Si no está definido, por defecto '1d'
-    expiresIn: configService.get<string>('JWT_EXPIRES_IN', 'id'),
+    expiresIn: configService.get<string>('JWT_EXPIRES_IN', '1h'),
   },
 });

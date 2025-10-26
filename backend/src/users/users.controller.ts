@@ -23,9 +23,9 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   /**
-   * Crea un nuevo usuario
-   * Ruta pública para registro de clientes
-   * Si se intenta asignar un rol diferente a "Cliente", se ignora (seguridad)
+   * Crea un nuevo usuario (REGISTRO PÚBLICO)
+   * Solo se puede registrar como cliente
+   * Para crear usuarios con otros roles, usar POST /users/admin
    * 
    * @route POST /users
    * @access Public
@@ -33,35 +33,95 @@ export class UsersController {
   @Post()
   @HttpCode(HttpStatus.CREATED)
   async create(@Body() createUserDto: CreateUserDto) {
-    // Por seguridad, remover roleId del registro público
-    // Solo se puede registrar como cliente
+    // Por seguridad, validar si se está intentando asignar un rol diferente a cliente
+    if (createUserDto.roleId) {
+      throw new ForbiddenException(
+        'No puedes asignar roles manualmente. Los usuarios se registran como "Cliente" por defecto. ' +
+        'Solo un administrador puede asignar roles diferentes.'
+      );
+    }
+
+    // Remover roleId para forzar el rol de cliente por defecto
     const { roleId, ...userData } = createUserDto;
 
     return this.usersService.create(userData);
   }
 
   /**
-   * Crea un usuario con rol específico (solo administradores)
+   * Crea un usuario con rol específico (SOLO ADMINISTRADORES)
    * Permite asignar roles de Vendedor o Administrador
+   * Requiere autenticación con token JWT
    * 
    * @route POST /users/admin
    * @access Private (Solo Administrador)
    */
   @Post('admin')
+  @UseGuards(JwtUserAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
   async createWithRole(
     @Body() createUserDto: CreateUserDto,
     @Req() req,
   ) {
-    const userRole = req.user.role?.name?.toLowerCase();
+    const userRole = req.user?.role?.name?.toLowerCase();
 
     // Solo administradores pueden crear usuarios con roles específicos
     if (userRole !== 'administrador') {
       throw new ForbiddenException(
-        'Solo administradores pueden asignar roles específicos',
+        'Solo administradores pueden asignar roles específicos a los usuarios'
+      );
+    }
+
+    // Si no se proporciona roleId, se asignará cliente por defecto
+    if (!createUserDto.roleId) {
+      throw new ForbiddenException(
+        'Debes especificar un roleId al crear usuarios desde este endpoint'
       );
     }
 
     return this.usersService.create(createUserDto);
+  }
+
+  /**
+   * Obtiene el perfil del usuario autenticado
+   * @route GET /users/profile
+   * @access Private (Usuario autenticado)
+   */
+  @Get('profile')
+  @UseGuards(JwtUserAuthGuard)
+  async getProfile(@Req() req) {
+    const userId = req.user?.id;
+    return this.usersService.findOne(userId);
+  }
+
+  /**
+   * Actualiza el perfil del usuario autenticado
+   * @route PATCH /users/profile
+   * @access Private (Usuario autenticado)
+   */
+  @Patch('profile')
+  @UseGuards(JwtUserAuthGuard)
+  async updateProfile(
+    @Req() req,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const userId = req.user?.id;
+    
+    // No permitir cambio de rol desde este endpoint
+    const { roleId, ...safeUpdateDto } = updateUserDto;
+    
+    return this.usersService.update(userId, safeUpdateDto);
+  }
+
+  /**
+   * Obtiene los pedidos del usuario autenticado
+   * @route GET /users/orders
+   * @access Private (Usuario autenticado)
+   */
+  @Get('orders')
+  @UseGuards(JwtUserAuthGuard)
+  async getUserOrders(@Req() req) {
+    const userId = req.user?.id;
+    return this.usersService.getUserOrders(userId);
   }
 
   /**
@@ -72,13 +132,14 @@ export class UsersController {
    * @access Private (Administrador, Vendedor)
    */
   @Get()
+  @UseGuards(JwtUserAuthGuard)
   async findAll(@Req() req) {
-    const userRole = req.user.role?.name?.toLowerCase();
+    const userRole = req.user?.role?.name?.toLowerCase();
 
     // Solo admin y vendedor pueden ver todos los usuarios
     if (!userRole || !['administrador', 'vendedor'].includes(userRole)) {
       throw new ForbiddenException(
-        'No tienes permisos para ver todos los usuarios',
+        'No tienes permisos para ver todos los usuarios'
       );
     }
 
@@ -94,9 +155,10 @@ export class UsersController {
    * @access Private (Todos los roles autenticados)
    */
   @Get(':id')
+  @UseGuards(JwtUserAuthGuard)
   async findOne(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
-    const userId = req.user.id;
-    const userRole = req.user.role?.name?.toLowerCase();
+    const userId = req.user?.id;
+    const userRole = req.user?.role?.name?.toLowerCase();
 
     // Admin y vendedor pueden ver cualquier usuario
     if (userRole === 'administrador' || userRole === 'vendedor') {
@@ -106,7 +168,7 @@ export class UsersController {
     // Usuarios normales solo pueden ver su propia información
     if (userId !== id) {
       throw new ForbiddenException(
-        'Solo puedes ver tu propia información',
+        'Solo puedes ver tu propia información'
       );
     }
 
@@ -122,18 +184,19 @@ export class UsersController {
    * @access Private (Todos los roles autenticados)
    */
   @Patch(':id')
+  @UseGuards(JwtUserAuthGuard)
   async update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateUserDto: UpdateUserDto,
     @Req() req,
   ) {
-    const userId = req.user.id;
-    const userRole = req.user.role?.name?.toLowerCase();
+    const userId = req.user?.id;
+    const userRole = req.user?.role?.name?.toLowerCase();
 
     // Si no es administrador y intenta cambiar el rol, denegar
     if (updateUserDto.roleId && userRole !== 'administrador') {
       throw new ForbiddenException(
-        'Solo administradores pueden cambiar roles de usuario',
+        'Solo administradores pueden cambiar roles de usuario'
       );
     }
 
@@ -145,7 +208,7 @@ export class UsersController {
     // Usuarios normales solo pueden actualizar su propia información
     if (userId !== id) {
       throw new ForbiddenException(
-        'Solo puedes actualizar tu propia información',
+        'Solo puedes actualizar tu propia información'
       );
     }
 
@@ -163,13 +226,14 @@ export class UsersController {
    * @access Private (Solo Administrador)
    */
   @Delete(':id')
+  @UseGuards(JwtUserAuthGuard)
   async remove(@Param('id', ParseUUIDPipe) id: string, @Req() req) {
-    const userRole = req.user.role?.name?.toLowerCase();
+    const userRole = req.user?.role?.name?.toLowerCase();
 
     // Solo administradores pueden desactivar usuarios
     if (userRole !== 'administrador') {
       throw new ForbiddenException(
-        'Solo administradores pueden desactivar usuarios',
+        'Solo administradores pueden desactivar usuarios'
       );
     }
 
