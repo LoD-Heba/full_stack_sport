@@ -68,7 +68,7 @@ export class CreateUserDto {
   })
   @Transform(({ value }) => value?.toString().trim())
   address: string;
-  
+
   @IsOptional()
   @IsString({ message: 'El nombre de la empresa debe ser una cadena de texto' })
   @Length(3, 100, {
@@ -83,7 +83,12 @@ export class CreateUserDto {
   @Transform(({ value }) => value?.toString().trim())
   taxId?: string;
 
+  /**
+   * ID del rol a asignar
+   * Si no se proporciona, se asignará automáticamente el rol "Cliente"
+   * Solo administradores pueden asignar roles diferentes a "Cliente"
+   */
+  @IsOptional()
   @IsUUID(4, { message: 'Debe ser un UUID válido' })
-  @IsNotEmpty({ message: 'El rol es obligatorio' })
-  roleId: string;
+  roleId?: string;
 }
