@@ -24,11 +24,11 @@ interface User {
 
 interface Order {
   id: string;
-  orderNumber: string;
+  nameClient: string;
   status: string;
-  totalAmount: number;
+  total: number;
   createdAt: string;
-  products: any[];
+  orderDetails: any[];
 }
 
 interface EcommerceOrder {
@@ -67,15 +67,17 @@ export default function UserProfilePage() {
 
   // Cargar datos del usuario y pedidos
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && authUser?.id) {
       loadUserData();
       loadUserOrders();
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, authUser]);
 
   const loadUserData = async () => {
+    if (!authUser?.id) return;
+
     try {
-      const response = await fetch('/api/users/profile');
+      const response = await fetch(`/api/users/profile/${authUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setUser(data);
@@ -96,8 +98,10 @@ export default function UserProfilePage() {
   };
 
   const loadUserOrders = async () => {
+    if (!authUser?.id) return;
+
     try {
-      const response = await fetch('/api/users/orders');
+      const response = await fetch(`/api/users/orders/${authUser.id}`);
       if (response.ok) {
         const data = await response.json();
         setOrders(data.orders || []);
@@ -112,8 +116,10 @@ export default function UserProfilePage() {
     e.preventDefault();
     setUpdateMessage('');
     
+    if (!authUser?.id) return;
+
     try {
-      const response = await fetch('/api/users/profile', {
+      const response = await fetch(`/api/users/profile/${authUser.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(editForm),
@@ -122,20 +128,23 @@ export default function UserProfilePage() {
       if (response.ok) {
         await loadUserData();
         setIsEditing(false);
-        setUpdateMessage('Perfil actualizado correctamente ✓');
+        setUpdateMessage('✅ Perfil actualizado correctamente');
         setTimeout(() => setUpdateMessage(''), 3000);
       } else {
         const error = await response.json();
-        setUpdateMessage(`Error: ${error.error || 'No se pudo actualizar'}`);
+        setUpdateMessage(`❌ Error: ${error.error || 'No se pudo actualizar'}`);
       }
     } catch (error) {
       console.error('Error updating profile:', error);
-      setUpdateMessage('Error al actualizar perfil');
+      setUpdateMessage('❌ Error al actualizar perfil');
     }
   };
 
   const getStatusColor = (status: string) => {
     const colors: Record<string, string> = {
+      pendiente: 'bg-yellow-100 text-yellow-800',
+      vendido: 'bg-green-100 text-green-800',
+      rechazado: 'bg-red-100 text-red-800',
       pending: 'bg-yellow-100 text-yellow-800',
       processing: 'bg-blue-100 text-blue-800',
       completed: 'bg-green-100 text-green-800',
@@ -209,7 +218,7 @@ export default function UserProfilePage() {
 
         {/* Mensaje de actualización */}
         {updateMessage && (
-          <div className={`mb-6 p-4 rounded-lg ${updateMessage.includes('Error') ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
+          <div className={`mb-6 p-4 rounded-lg ${updateMessage.includes('❌') ? 'bg-red-50 text-red-800' : 'bg-green-50 text-green-800'}`}>
             {updateMessage}
           </div>
         )}
@@ -453,7 +462,7 @@ export default function UserProfilePage() {
                       Aún no tienes pedidos
                     </p>
                     <button 
-                      onClick={() => router.push('/products')}
+                      onClick={() => router.push('/shop')}
                       className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                     >
                       Explorar productos
@@ -461,12 +470,13 @@ export default function UserProfilePage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {[...orders, ...ecommerceOrders].map((order) => (
+                    {/* Pedidos regulares */}
+                    {orders.map((order) => (
                       <div key={order.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition">
                         <div className="flex justify-between items-start mb-4">
                           <div>
                             <h3 className="font-semibold text-gray-900 text-lg">
-                              Pedido #{('orderNumber' in order) ? order.orderNumber : order.id.slice(0, 8)}
+                              Pedido - {order.nameClient}
                             </h3>
                             <p className="text-gray-600 text-sm mt-1">
                               {formatDate(order.createdAt)}
@@ -481,7 +491,7 @@ export default function UserProfilePage() {
                           <div>
                             <p className="text-gray-600 text-sm">Total</p>
                             <p className="text-xl font-bold text-gray-900">
-                              {formatCurrency(order.totalAmount)}
+                              {formatCurrency(order.total)}
                             </p>
                           </div>
                           <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
