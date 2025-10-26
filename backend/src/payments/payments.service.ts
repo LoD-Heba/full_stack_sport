@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { IsNull, Not, Repository } from 'typeorm';
 import Stripe from 'stripe';
 import { Ecommerce } from 'src/ecommerce/entities/ecommerce.entity';
 import { User } from 'src/users/entities/user.entity';
@@ -462,4 +462,221 @@ export class PaymentsService {
       );
     }
   }
+
+  // Agregar estos métodos al payments.service.ts:
+
+/**
+ * Confirma un pago manual (efectivo, transferencia, QR)
+ */
+async confirmManualPayment(
+  ecommerceId: string,
+  paymentMethod: string,
+  paymentNotes?: string,
+) {
+  try {
+    const ecommerce = await this.ecommerceRepository.findOne({
+      where: { id: ecommerceId },
+    });
+
+    if (!ecommerce) {
+      throw new NotFoundException('Venta no encontrada');
+    }
+
+    if (ecommerce.status !== 'Pendiente') {
+      throw new BadRequestException(
+        `Esta venta ya fue procesada. Estado: ${ecommerce.status}`,
+      );
+    }
+
+    await this.ecommerceRepository.update(ecommerceId, {
+      status: 'Vendido',
+      paymentMethod,
+      paymentStatus: 'succeeded',
+      paymentNotes,
+      paidAt: new Date(),
+    });
+
+    return {
+      message: 'Pago confirmado exitosamente',
+      ecommerceId,
+      paymentMethod,
+    };
+  } catch (error) {
+    if (
+      error instanceof NotFoundException ||
+      error instanceof BadRequestException
+    ) {
+      throw error;
+    }
+    throw new InternalServerErrorException(
+      `Error al confirmar pago: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Procesa un reembolso
+ */
+async refundPayment(
+  ecommerceId: string,
+  amount?: number,
+  reason?: string,
+) {
+  try {
+    const ecommerce = await this.ecommerceRepository.findOne({
+      where: { id: ecommerceId },
+    });
+
+    if (!ecommerce) {
+      throw new NotFoundException('Venta no encontrada');
+    }
+
+    if (!ecommerce.paymentIntentId) {
+      throw new BadRequestException(
+        'Esta venta no tiene un pago procesado con Stripe',
+      );
+    }
+
+    // Crear el reembolso en Stripe
+    const refund = await this.stripe.refunds.create({
+      payment_intent: ecommerce.paymentIntentId,
+      amount: amount ? Math.round(amount * 100) : undefined,
+      reason: 'requested_by_customer',
+      metadata: {
+        ecommerceId: ecommerce.id,
+        refundReason: reason || 'No especificado',
+      },
+    });
+
+    return {
+      message: 'Reembolso procesado exitosamente',
+      refundId: refund.id,
+      amount: refund.amount / 100,
+      status: refund.status,
+    };
+  } catch (error) {
+    if (
+      error instanceof NotFoundException ||
+      error instanceof BadRequestException
+    ) {
+      throw error;
+    }
+    throw new InternalServerErrorException(
+      `Error al procesar reembolso: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Obtiene el historial de pagos de un cliente
+ */
+async getPaymentHistory(clientId: string) {
+  try {
+    const payments = await this.ecommerceRepository.find({
+      where: {
+        client: { id: clientId },
+        paymentIntentId: Not(IsNull()),
+      },
+      relations: ['vendor', 'ecommerceDetail', 'ecommerceDetail.product'],
+      order: { createdAt: 'DESC' },
+    });
+
+    return payments.map((payment) => ({
+      id: payment.id,
+      amount: payment.total,
+      currency: payment.currency,
+      status: payment.status,
+      paymentStatus: payment.paymentStatus,
+      paymentMethod: payment.paymentMethod,
+      paidAt: payment.paidAt,
+      createdAt: payment.createdAt,
+    }));
+  } catch (error) {
+    throw new InternalServerErrorException(
+      `Error al obtener historial: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Obtiene estadísticas de pagos
+ */
+async getPaymentStatistics() {
+  try {
+    const allPayments = await this.ecommerceRepository.find({
+      where: { paymentIntentId: Not(IsNull()) },
+    });
+
+    const statistics = {
+      totalPagos: allPayments.length,
+      pagosPendientes: allPayments.filter((p) => p.paymentStatus === 'pending')
+        .length,
+      pagosExitosos: allPayments.filter((p) => p.paymentStatus === 'succeeded')
+        .length,
+      pagosFallidos: allPayments.filter((p) => p.paymentStatus === 'failed')
+        .length,
+      montoTotal: allPayments.reduce((sum, p) => sum + Number(p.total), 0),
+      montoStripe: allPayments
+        .filter((p) => p.paymentMethod === 'stripe')
+        .reduce((sum, p) => sum + Number(p.total), 0),
+      montoEfectivo: allPayments
+        .filter((p) => p.paymentMethod === 'cash')
+        .reduce((sum, p) => sum + Number(p.total), 0),
+    };
+
+    return statistics;
+  } catch (error) {
+    throw new InternalServerErrorException(
+      `Error al obtener estadísticas: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Verifica si existe un payment intent activo
+ */
+async checkPaymentIntent(ecommerceId: string) {
+  try {
+    const ecommerce = await this.ecommerceRepository.findOne({
+      where: { id: ecommerceId },
+    });
+
+    if (!ecommerce) {
+      throw new NotFoundException('Venta no encontrada');
+    }
+
+    return {
+      hasPaymentIntent: !!ecommerce.paymentIntentId,
+      paymentIntentId: ecommerce.paymentIntentId,
+      paymentStatus: ecommerce.paymentStatus,
+      paymentMethod: ecommerce.paymentMethod,
+    };
+  } catch (error) {
+    if (error instanceof NotFoundException) {
+      throw error;
+    }
+    throw new InternalServerErrorException(
+      `Error al verificar payment intent: ${error.message}`,
+    );
+  }
+}
+
+/**
+ * Obtiene la configuración pública de Stripe
+ */
+async getPublicConfig() {
+  const publishableKey = this.configService.get<string>(
+    'STRIPE_PUBLISHABLE_KEY',
+  );
+
+  if (!publishableKey) {
+    throw new InternalServerErrorException(
+      'Configuración de Stripe no disponible',
+    );
+  }
+
+  return {
+    publishableKey,
+  };
+}
 }
