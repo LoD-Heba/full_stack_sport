@@ -51,14 +51,13 @@ export class User {
   @JoinColumn({ name: 'role_id' })
   role: Role;
 
-  @OneToMany(() => Order, (order) => order.users, { eager: true })
-  @JoinColumn({ name: 'role_id' })
+  @OneToMany(() => Order, (order) => order.users)
   orders: Order[];
 
   @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.client)
   ecommerceAsClient: Ecommerce[]; // Pedidos donde este usuario es el CLIENTE
 
-  @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.users)
+  @OneToMany(() => Ecommerce, (ecommerce) => ecommerce.vendor)
   ecommerceAsVendor: Ecommerce[]; // Pedidos que este usuario REGISTRÓ/PROCESÓ
 
   // También agregar estas columnas si no las tienes:

@@ -13,6 +13,7 @@ import { EcommerceModule } from './ecommerce/ecommerce.module';
 import { ReportOrderPdfModule } from './reportOrders-pdf/report-pdf.module';
 import { ReportEcommercePdfModule } from './reportEcommerce-pdf/reportEcommerce-pdf.module';
 import { UploadsModule } from './uploads/uploads.module';
+import { PaymentsModule } from './payments/payments.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,6 +35,7 @@ import { UploadsModule } from './uploads/uploads.module';
     ReportEcommercePdfModule,
     EcommerceModule,
     UploadsModule,
+    PaymentsModule,
   ],
 })
 export class AppModule {}
