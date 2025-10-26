@@ -1,10 +1,11 @@
 // frontend/components/dashboard/ProductForm.tsx
 
 "use client";
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { Product, CreateProductDto } from '@/types/product';
-import { Category } from '@/types/category';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Product, CreateProductDto } from "@/types/product";
+import { Category } from "@/types/category";
+import ImageUpload from "./ImageUpload";
 
 interface ProductFormProps {
   productId?: string;
@@ -17,14 +18,14 @@ export default function ProductForm({ productId }: ProductFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [categories, setCategories] = useState<Category[]>([]);
   const [formData, setFormData] = useState<CreateProductDto>({
-    name: '',
-    description: '',
-    slug: '',
+    name: "",
+    description: "",
+    slug: "",
     price: 0,
     stock: 0,
     isAvailable: true,
     images: [],
-    categoryId: '',
+    categoryId: "",
   });
 
   useEffect(() => {
@@ -36,49 +37,57 @@ export default function ProductForm({ productId }: ProductFormProps) {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('/api/categories');
-      if (!response.ok) throw new Error('Error al cargar categorías');
+      const response = await fetch("/api/categories");
+      if (!response.ok) throw new Error("Error al cargar categorías");
       const data = await response.json();
       setCategories(data);
     } catch (err) {
-      console.error('Error:', err);
+      console.error("Error:", err);
     }
   };
 
   const fetchProduct = async (id: string) => {
     try {
       const response = await fetch(`/api/products/${id}`);
-      if (!response.ok) throw new Error('Error al cargar el producto');
+      if (!response.ok) throw new Error("Error al cargar el producto");
       const data: Product = await response.json();
       setFormData({
         name: data.name,
-        description: data.description || '',
+        description: data.description || "",
         slug: data.slug,
         price: data.price,
         stock: data.stock,
         isAvailable: data.isAvailable,
-        images: data.images?.map(img => img.url) || [],
+        images: data.images?.map((img) => img.url) || [],
         categoryId: data.category.id,
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type } = e.target as HTMLInputElement;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked :
-              type === 'number' ? parseFloat(value) : value,
+      [name]:
+        type === "checkbox"
+          ? (e.target as HTMLInputElement).checked
+          : type === "number"
+          ? parseFloat(value)
+          : value,
     }));
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    const urls = e.target.value.split('\n').filter(url => url.trim());
-    setFormData(prev => ({
+    const urls = e.target.value.split("\n").filter((url) => url.trim());
+    setFormData((prev) => ({
       ...prev,
       images: urls,
     }));
@@ -90,25 +99,28 @@ export default function ProductForm({ productId }: ProductFormProps) {
     setError(null);
 
     try {
-      const method = productId ? 'PATCH' : 'POST';
-      const url = productId ? `/api/products/${productId}` : '/api/products';
+      const method = productId ? "PATCH" : "POST";
+      const url = productId ? `/api/products/${productId}` : "/api/products";
 
       const response = await fetch(url, {
         method,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || `Error al ${productId ? 'actualizar' : 'crear'} el producto`);
+        throw new Error(
+          data.error ||
+            `Error al ${productId ? "actualizar" : "crear"} el producto`
+        );
       }
 
-      alert(`Producto ${productId ? 'actualizado' : 'creado'} correctamente`);
-      router.push('/dashboard/products');
+      alert(`Producto ${productId ? "actualizado" : "creado"} correctamente`);
+      router.push("/dashboard/products");
       router.refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setSubmitting(false);
     }
@@ -124,7 +136,10 @@ export default function ProductForm({ productId }: ProductFormProps) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow p-8 max-w-3xl">
+    <form
+      onSubmit={handleSubmit}
+      className="bg-white rounded-lg shadow p-8 max-w-3xl"
+    >
       {error && (
         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6">
           {error}
@@ -148,7 +163,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
             placeholder="Ej: Polera Nike Dri-Fit"
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
-          <p className="text-xs text-gray-500 mt-1">Mínimo 2, máximo 200 caracteres</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Mínimo 2, máximo 200 caracteres
+          </p>
         </div>
 
         {/* Categoría */}
@@ -164,7 +181,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           >
             <option value="">Selecciona una categoría</option>
-            {categories.map(cat => (
+            {categories.map((cat) => (
               <option key={cat.id} value={cat.id}>
                 {cat.name}
               </option>
@@ -223,7 +240,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
           placeholder="polera-nike-dri-fit (Se genera automáticamente si está vacío)"
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
-        <p className="text-xs text-gray-500 mt-1">URL amigable. Se genera automáticamente si está vacío.</p>
+        <p className="text-xs text-gray-500 mt-1">
+          URL amigable. Se genera automáticamente si está vacío.
+        </p>
       </div>
 
       {/* Descripción */}
@@ -248,29 +267,62 @@ export default function ProductForm({ productId }: ProductFormProps) {
       {/* URLs de Imágenes */}
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          URLs de Imágenes
+          Imágenes del Producto
         </label>
-        <textarea
-          value={formData.images?.join('\n') || ''}
-          onChange={handleImageChange}
-          rows={4}
-          placeholder="https://ejemplo.com/imagen1.jpg&#10;https://ejemplo.com/imagen2.jpg"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
-        />
-        <p className="text-xs text-gray-500 mt-1">Una URL por línea</p>
 
+        {/* Componente de subida */}
+        <ImageUpload
+          onUploadSuccess={(url) => {
+            setFormData((prev) => ({
+              ...prev,
+              images: [...(prev.images || []), url],
+            }));
+          }}
+          currentImages={formData.images || []}
+        />
+
+        {/* URLs manuales (opcional) */}
+        <div className="mt-4">
+          <textarea
+            value={formData.images?.join("\n") || ""}
+            onChange={handleImageChange}
+            rows={3}
+            placeholder="O pega URLs manualmente (una por línea)"
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent font-mono text-sm"
+          />
+        </div>
+
+        {/* Preview de imágenes con opción de eliminar */}
         {formData.images && formData.images.length > 0 && (
-          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-            {formData.images.map((url, idx) => (
-              <div key={idx} className="relative">
-                <img
-                  src={url}
-                  alt={`preview-${idx}`}
-                  className="h-24 w-24 object-cover rounded"
-                  onError={(e) => (e.currentTarget.style.display = 'none')}
-                />
-              </div>
-            ))}
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-700 mb-2">
+              Imágenes cargadas ({formData.images.length})
+            </p>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {formData.images.map((url, idx) => (
+                <div key={idx} className="relative group">
+                  <img
+                    src={url}
+                    alt={`preview-${idx}`}
+                    className="h-24 w-full object-cover rounded"
+                    onError={(e) => (e.currentTarget.style.display = "none")}
+                  />
+                  {/* Botón eliminar */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        images: prev.images?.filter((_, i) => i !== idx) || [],
+                      }));
+                    }}
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
           </div>
         )}
       </div>
@@ -285,7 +337,9 @@ export default function ProductForm({ productId }: ProductFormProps) {
             onChange={handleChange}
             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-2 focus:ring-blue-500"
           />
-          <span className="text-sm font-medium text-gray-700">Producto Disponible</span>
+          <span className="text-sm font-medium text-gray-700">
+            Producto Disponible
+          </span>
         </label>
       </div>
 
@@ -296,11 +350,11 @@ export default function ProductForm({ productId }: ProductFormProps) {
           disabled={submitting}
           className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 transition"
         >
-          {submitting ? 'Guardando...' : productId ? 'Actualizar' : 'Crear'}
+          {submitting ? "Guardando..." : productId ? "Actualizar" : "Crear"}
         </button>
         <button
           type="button"
-          onClick={() => router.push('/dashboard/products')}
+          onClick={() => router.push("/dashboard/products")}
           className="px-6 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition"
         >
           Cancelar

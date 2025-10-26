@@ -22,21 +22,44 @@ interface User {
   createdAt: string;
 }
 
+interface OrderDetail {
+  id: string;
+  quantity: number;
+  unitPrice: number;
+  subTotal: number;
+  product: {
+    id: string;
+    name: string;
+  };
+}
+
 interface Order {
   id: string;
   nameClient: string;
   status: string;
   total: number;
   createdAt: string;
-  orderDetails: any[];
+  orderDetails: OrderDetail[];
+}
+
+interface EcommerceDetail {
+  id: string;
+  quantity: number;
+  unitPrice: number;
+  subTotal: number;
+  product: {
+    id: string;
+    name: string;
+  };
 }
 
 interface EcommerceOrder {
   id: string;
+  nameClient: string;
   status: string;
-  totalAmount: number;
+  total: number;
   createdAt: string;
-  ecommerceDetails: any[];
+  ecommerceDetail: EcommerceDetail[];
 }
 
 export default function UserProfilePage() {
@@ -89,6 +112,8 @@ export default function UserProfilePage() {
           companyName: data.companyName || '',
           taxId: data.taxId || '',
         });
+      } else {
+        console.error('Error al cargar usuario:', await response.json());
       }
     } catch (error) {
       console.error('Error loading user:', error);
@@ -104,8 +129,11 @@ export default function UserProfilePage() {
       const response = await fetch(`/api/users/orders/${authUser.id}`);
       if (response.ok) {
         const data = await response.json();
+        console.log('Orders data:', data);
         setOrders(data.orders || []);
         setEcommerceOrders(data.ecommerceOrders || []);
+      } else {
+        console.error('Error al cargar pedidos:', await response.json());
       }
     } catch (error) {
       console.error('Error loading orders:', error);
@@ -185,6 +213,12 @@ export default function UserProfilePage() {
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
           <p className="text-red-600">Error al cargar el perfil</p>
+          <button 
+            onClick={() => router.push('/')}
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+          >
+            Volver al inicio
+          </button>
         </div>
       </div>
     );
@@ -334,7 +368,7 @@ export default function UserProfilePage() {
                     </div>
                   </div>
                 ) : (
-                  <div className="space-y-6">
+                  <form onSubmit={handleUpdateProfile} className="space-y-6">
                     <div className="flex justify-between items-center mb-6">
                       <h2 className="text-xl font-semibold text-gray-900">
                         Editar Perfil
@@ -358,8 +392,7 @@ export default function UserProfilePage() {
                           Cancelar
                         </button>
                         <button
-                          type="button"
-                          onClick={handleUpdateProfile}
+                          type="submit"
                           className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
                         >
                           💾 Guardar
@@ -443,7 +476,7 @@ export default function UserProfilePage() {
                         />
                       </div>
                     </div>
-                  </div>
+                  </form>
                 )}
               </div>
             )}
@@ -470,6 +503,50 @@ export default function UserProfilePage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
+                    {/* Pedidos de Ecommerce */}
+                    {ecommerceOrders.map((order) => (
+                      <div key={order.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition">
+                        <div className="flex justify-between items-start mb-4">
+                          <div>
+                            <h3 className="font-semibold text-gray-900 text-lg">
+                              Pedido Ecommerce - {order.nameClient}
+                            </h3>
+                            <p className="text-gray-600 text-sm mt-1">
+                              {formatDate(order.createdAt)}
+                            </p>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(order.status)}`}>
+                            {order.status}
+                          </span>
+                        </div>
+
+                        {/* Productos */}
+                        <div className="space-y-2 mb-4">
+                          {order.ecommerceDetail.map((detail) => (
+                            <div key={detail.id} className="flex justify-between text-sm text-gray-600">
+                              <span>{detail.product.name} x{detail.quantity}</span>
+                              <span>{formatCurrency(detail.subTotal)}</span>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="flex justify-between items-center pt-4 border-t border-gray-200">
+                          <div>
+                            <p className="text-gray-600 text-sm">Total</p>
+                            <p className="text-xl font-bold text-gray-900">
+                              {formatCurrency(order.total)}
+                            </p>
+                          </div>
+                          <button 
+                            onClick={() => router.push(`/orders/${order.id}`)}
+                            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"
+                          >
+                            Ver detalles →
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+
                     {/* Pedidos regulares */}
                     {orders.map((order) => (
                       <div key={order.id} className="bg-gray-50 rounded-lg p-6 hover:shadow-md transition">
@@ -487,6 +564,16 @@ export default function UserProfilePage() {
                           </span>
                         </div>
 
+                        {/* Productos */}
+                        <div className="space-y-2 mb-4">
+                          {order.orderDetails.map((detail) => (
+                            <div key={detail.id} className="flex justify-between text-sm text-gray-600">
+                              <span>{detail.product.name} x{detail.quantity}</span>
+                              <span>{formatCurrency(detail.subTotal)}</span>
+                            </div>
+                          ))}
+                        </div>
+
                         <div className="flex justify-between items-center pt-4 border-t border-gray-200">
                           <div>
                             <p className="text-gray-600 text-sm">Total</p>
@@ -494,7 +581,10 @@ export default function UserProfilePage() {
                               {formatCurrency(order.total)}
                             </p>
                           </div>
-                          <button className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition">
+                          <button 
+                            onClick={() => router.push(`/orders/${order.id}`)}
+                            className="px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition"
+                          >
                             Ver detalles →
                           </button>
                         </div>
