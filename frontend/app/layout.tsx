@@ -3,6 +3,7 @@
 import { Toaster } from "@/components/ui/sonner";
 import { CartProvider } from "./shop/cart/CartContext";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export default function RootLayout({
   children,
@@ -12,9 +13,11 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body>
+        <AuthProvider>
         <CartProvider>
           {children}
         </CartProvider>
+        </AuthProvider>
         <Toaster position="top-right" />
       </body>
     </html>

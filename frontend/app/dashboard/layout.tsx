@@ -13,7 +13,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen bg-gray-100">
       <Sidebar />
-
+      {/* <ProtectedRoute requiredRole={["administrador", "vendedor"]}>
+      {children}
+    </ProtectedRoute> */}
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />
