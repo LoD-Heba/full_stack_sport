@@ -85,12 +85,13 @@ export class UploadsController {
     }
 
     // Retornar la URL completa de la imagen
-    const imageUrl = `${process.env.BACKEND_URL || 'http://localhost:3001'}/images/${file.filename}`;
+    const imageUrl = `/images/${file.filename}`; // ✅ Solo la ruta relativa
 
+    // Retornar solo el nombre del archivo, NO la URL completa
     return {
       message: 'Imagen subida correctamente',
       filename: file.filename,
-      url: imageUrl,
+      url: file.filename, // ✅ Solo el nombre del archivo
       size: file.size,
       mimetype: file.mimetype,
     };
@@ -108,7 +109,7 @@ export class UploadsController {
 
     return files.map((filename) => ({
       filename,
-      url: `${baseUrl}/images/${filename}`,
+      url: `/images/${filename}`, // ✅ Solo la ruta relativa
     }));
   }
 }

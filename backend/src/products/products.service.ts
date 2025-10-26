@@ -19,36 +19,36 @@ export class ProductsService {
     @InjectRepository(ProductImage)
     private readonly producImageRepository: Repository<ProductImage>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
   async create(createProductDto: CreateProductDto) {
     const { categoryId, images = [], ...producData } = createProductDto;
-    const category = await this.findCategoryOrThrow(categoryId)
-
-
+    const category = await this.findCategoryOrThrow(categoryId);
 
     const product = this.productRepository.create({
       ...producData,
       category,
-      images: images.map((filename) =>
-         this.producImageRepository.create({  url: `/images/${filename}` })),
-    })
-    return this.productRepository.save(product)
+      images: images.map((url) => {
+        const cleanUrl = url.replace(/^\/images\//, '').replace(/^images\//, '');
+    return this.producImageRepository.create({ url: `/images/${cleanUrl}` });
+      }),
+    });
+    return this.productRepository.save(product);
   }
 
   async findAll(PaginationDto: PaginationDto) {
-
     return await this.productRepository.find({
       where: { isActive: true, category: { isActive: true } },
-      relations: ['category', 'images'], 
+      relations: ['category', 'images'],
       order: { createdAt: 'DESC' },
-
     });
   }
 
   async findOne(id: string) {
     const product = await this.productRepository.findOne({
       where: {
-        id, isActive: true, category: { isActive: true }
+        id,
+        isActive: true,
+        category: { isActive: true },
       },
       relations: ['category', 'images'], // 🔹 Aquí agregamos category
     });
@@ -65,16 +65,16 @@ export class ProductsService {
     await this.findOne(id);
 
     const product = await this.productRepository.preload({
-      id, ...productData
-    })
-    //verifica sila categoria existe para poder actualizar 
+      id,
+      ...productData,
+    });
+    //verifica sila categoria existe para poder actualizar
     if (categoryId) {
       product!.category = await this.findCategoryOrThrow(categoryId);
     }
-    
 
     const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect()
+    await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
@@ -83,9 +83,11 @@ export class ProductsService {
         await queryRunner.manager.delete(ProductImage, { product: { id } });
 
         // Crea nuevas imagenes y las asignos al producto
-        product!.images = images.map((url) => this.producImageRepository.create({ url }),);
+        product!.images = images.map((url) =>
+          this.producImageRepository.create({ url }),
+        );
       }
-      //guarda e prodcuto actualizado 
+      //guarda e prodcuto actualizado
       await queryRunner.manager.save(Product, product!);
       await queryRunner.commitTransaction();
 
@@ -98,23 +100,21 @@ export class ProductsService {
   }
 
   async remove(id: string) {
-    const product = await this.findOne(id)
-    await this.productRepository.update(
-      id, { isActive: false }
-    );
+    const product = await this.findOne(id);
+    await this.productRepository.update(id, { isActive: false });
     return {
-      message: `product (${product.name}) has been deactivated`
-    }
+      message: `product (${product.name}) has been deactivated`,
+    };
   }
 
   private async findCategoryOrThrow(categoryId: string): Promise<Category> {
     const category = await this.categoryRepository.findOneBy({
       id: categoryId,
       isActive: true,
-    })
+    });
 
     if (!category) {
-      throw new NotFoundException(`Category with id ${categoryId} not found`)
+      throw new NotFoundException(`Category with id ${categoryId} not found`);
     }
     return category;
   }
@@ -123,9 +123,7 @@ export class ProductsService {
   async findByCategory(categoryId: string) {
     return await this.productRepository.find({
       where: { category: { id: categoryId } },
-      relations: ['category', 'images'], 
+      relations: ['category', 'images'],
     });
   }
-
-
 }
