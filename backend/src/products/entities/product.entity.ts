@@ -15,6 +15,7 @@ export class Product {
     @Column({ type: 'text', nullable: true })
     description?: string;
 
+    // ✅ Slug único, se genera automáticamente
     @Column({ length: 250, unique: true })
     slug: string;
 
@@ -47,13 +48,12 @@ export class Product {
     updatedAt: Date;
 
     @BeforeInsert()
-    @BeforeUpdate()
     generateSlug() {
-        if (!this.slug) {
-            this.slug = this.name;
-        }
+        // 🔹 Usa el slug proporcionado o genera uno desde el nombre
+        const baseText = this.slug || this.name;
 
-        this.slug = this.slug
+        // 🔹 Limpia y formatea el texto
+        const cleanSlug = baseText
             .toLowerCase()
             .trim()
             .replace(/[áàäâã]/g, 'a')
@@ -66,6 +66,30 @@ export class Product {
             .replace(/[^a-z0-9\-]/g, '')
             .replace(/-+/g, '-')
             .replace(/^-|-$/g, '');
+
+        // 🔹 Agrega timestamp para garantizar unicidad
+        const timestamp = Date.now().toString(36);
+        this.slug = `${cleanSlug}-${timestamp}`;
+    }
+
+    @BeforeUpdate()
+    updateSlug() {
+        // 🔹 Solo regenera el slug si se cambió explícitamente
+        if (this.slug) {
+            this.slug = this.slug
+                .toLowerCase()
+                .trim()
+                .replace(/[áàäâã]/g, 'a')
+                .replace(/[éèëê]/g, 'e')
+                .replace(/[íìïî]/g, 'i')
+                .replace(/[óòöôõ]/g, 'o')
+                .replace(/[úùüû]/g, 'u')
+                .replace(/[ñ]/g, 'n')
+                .replace(/\s+/g, '-')
+                .replace(/[^a-z0-9\-]/g, '')
+                .replace(/-+/g, '-')
+                .replace(/^-|-$/g, '');
+        }
     }
 
 }
