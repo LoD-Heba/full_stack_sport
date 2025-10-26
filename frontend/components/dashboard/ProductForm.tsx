@@ -50,11 +50,12 @@ export default function ProductForm({ productId }: ProductFormProps) {
       const response = await fetch(`/api/products/${id}`);
       if (!response.ok) throw new Error("Error al cargar el producto");
       const data: Product = await response.json();
+      
       setFormData({
         name: data.name,
         description: data.description || "",
-        price: data.price,
-        stock: data.stock,
+        price: Number(data.price) || 0,
+        stock: Number(data.stock) || 0,
         isAvailable: data.isAvailable,
         images: data.images?.map((img) => img.url) || [],
         categoryId: data.category.id,
@@ -78,7 +79,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         type === "checkbox"
           ? (e.target as HTMLInputElement).checked
           : type === "number"
-          ? parseFloat(value)
+          ? parseFloat(value) || 0
           : value,
     }));
   };
@@ -225,7 +226,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         </div>
       </div>
 
-      {/* Slug */}
+      {/* Slug
       <div className="mt-6">
         <label className="block text-sm font-medium text-gray-700 mb-2">
           Slug
@@ -241,7 +242,7 @@ export default function ProductForm({ productId }: ProductFormProps) {
         <p className="text-xs text-gray-500 mt-1">
           URL amigable. Se genera automáticamente si está vacío.
         </p>
-      </div>
+      </div> */}
 
       {/* Descripción */}
       <div className="mt-6">
@@ -303,7 +304,10 @@ export default function ProductForm({ productId }: ProductFormProps) {
                     src={url}
                     alt={`preview-${idx}`}
                     className="h-24 w-full object-cover rounded"
-                    onError={(e) => (e.currentTarget.style.display = "none")}
+                    onError={(e) => {
+                      console.error('Error loading image:', url);
+                      e.currentTarget.style.display = 'none';
+                    }}
                   />
                   {/* Botón eliminar */}
                   <button

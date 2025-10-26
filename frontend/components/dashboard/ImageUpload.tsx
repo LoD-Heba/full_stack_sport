@@ -45,20 +45,20 @@ export default function ImageUpload({ onUploadSuccess, currentImages = [] }: Ima
       }
 
       const data = await response.json();
+      console.log('Upload response:', data); // Debug
+      
+      // 🔹 El backend retorna { url: "http://localhost:3001/images/filename.webp" }
       onUploadSuccess(data.url);
       
       // Limpiar input
       e.target.value = '';
     } catch (err) {
+      console.error('Upload error:', err);
       setError(err instanceof Error ? err.message : 'Error al subir imagen');
     } finally {
       setUploading(false);
     }
-
-    
   };
-
-  
 
   return (
     <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
@@ -115,12 +115,20 @@ export default function ImageUpload({ onUploadSuccess, currentImages = [] }: Ima
       {currentImages.length > 0 && (
         <div className="mt-4 grid grid-cols-3 gap-2">
           {currentImages.map((url, idx) => (
-            <img
-              key={idx}
-              src={url}
-              alt={`preview-${idx}`}
-              className="h-20 w-full object-cover rounded"
-            />
+            <div key={idx} className="relative">
+              <img
+                src={url}
+                alt={`preview-${idx}`}
+                className="h-20 w-full object-cover rounded"
+                onError={(e) => {
+                  console.error('Error loading preview:', url);
+                  e.currentTarget.src = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="100"%3E%3Crect fill="%23ddd" width="100" height="100"/%3E%3Ctext fill="%23999" x="50%25" y="50%25" text-anchor="middle" dy=".3em"%3EError%3C/text%3E%3C/svg%3E';
+                }}
+              />
+              <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs p-1 truncate">
+                {url.split('/').pop()}
+              </div>
+            </div>
           ))}
         </div>
       )}
