@@ -70,15 +70,12 @@ export default function RegisterPage() {
       return;
     }
 
-    if (!formData.roleId) {
-      setError("Debes seleccionar un rol");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      const { confirmPassword, ...registerData } = formData;
+      // Remover confirmPassword y roleId para registro público
+      // El backend asignará automáticamente el rol "Cliente"
+      const { confirmPassword, roleId, ...registerData } = formData;
       await register(registerData);
     } catch (err: any) {
       setError(err.message || "Error al registrarse. Intenta nuevamente.");
@@ -274,8 +271,6 @@ export default function RegisterPage() {
             disabled={isLoading}
           />
         </div>
-
-       
 
         {/* Términos y condiciones */}
         <div className="flex items-start gap-2">

@@ -30,7 +30,7 @@ interface RegisterData {
   documentNumber: string;
   phone?: string;
   address: string;
-  roleId: string;
+  roleId?: string;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
