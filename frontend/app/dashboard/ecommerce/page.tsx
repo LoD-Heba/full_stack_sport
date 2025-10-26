@@ -1,14 +1,13 @@
-
 "use client";
-import { useEffect, useState } from 'react';
-import { Ecommerce } from '@/types/ecommerce';
+import { useEffect, useState } from "react";
+import { Ecommerce } from "@/types/ecommerce";
 
 export default function EcommerceAdminPage() {
   const [orders, setOrders] = useState<Ecommerce[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedStatus, setSelectedStatus] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -17,12 +16,12 @@ export default function EcommerceAdminPage() {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/ecommerce');
-      if (!response.ok) throw new Error('Error al cargar órdenes de ecommerce');
+      const response = await fetch("/api/ecommerce");
+      if (!response.ok) throw new Error("Error al cargar órdenes de ecommerce");
       const data = await response.json();
       setOrders(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error desconocido');
+      setError(err instanceof Error ? err.message : "Error desconocido");
     } finally {
       setLoading(false);
     }
@@ -31,71 +30,75 @@ export default function EcommerceAdminPage() {
   const handleStatusChange = async (id: string, newStatus: string) => {
     try {
       const response = await fetch(`/api/ecommerce/${id}`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ status: newStatus }),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al actualizar estado');
+        throw new Error(errorData.error || "Error al actualizar estado");
       }
 
       await fetchOrders();
-      alert('Estado actualizado correctamente');
+      alert("Estado actualizado correctamente");
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al actualizar');
+      alert(err instanceof Error ? err.message : "Error al actualizar");
     }
   };
 
   const handleDelete = async (id: string, nameClient: string) => {
-    if (!confirm(`¿Estás seguro de rechazar la orden de "${nameClient}"?`)) return;
+    if (!confirm(`¿Estás seguro de rechazar la orden de "${nameClient}"?`))
+      return;
 
     try {
       const response = await fetch(`/api/ecommerce/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Error al rechazar orden');
+        throw new Error(errorData.error || "Error al rechazar orden");
       }
 
       await fetchOrders();
-      alert('Orden rechazada correctamente');
+      alert("Orden rechazada correctamente");
     } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error al rechazar');
+      alert(err instanceof Error ? err.message : "Error al rechazar");
     }
   };
 
   const handleDownloadPDF = (orderId: string) => {
     // Ruta del backend para descargar PDF de ecommerce
-    window.open(`${process.env.NEXT_PUBLIC_API_URL}/ecommerce-report-pdf/factura/${orderId}`, '_blank');
+    window.open(
+      `${process.env.NEXT_PUBLIC_API_URL}/ecommerce-report-pdf/factura/${orderId}`,
+      "_blank"
+    );
   };
 
-  const filteredOrders = orders.filter(order => {
+  const filteredOrders = orders.filter((order) => {
     const matchesSearch =
       order.nameClient.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.client.email.toLowerCase().includes(searchTerm.toLowerCase());
+      order.nameCompany?.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesStatus = !selectedStatus || order.status === selectedStatus;
     return matchesSearch && matchesStatus;
   });
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Pendiente':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'Vendido':
-        return 'bg-green-100 text-green-800';
-      case 'Rechazado':
-        return 'bg-red-100 text-red-800';
+      case "Pendiente":
+        return "bg-yellow-100 text-yellow-800";
+      case "Vendido":
+        return "bg-green-100 text-green-800";
+      case "Rechazado":
+        return "bg-red-100 text-red-800";
       default:
-        return 'bg-gray-100 text-gray-800';
+        return "bg-gray-100 text-gray-800";
     }
   };
 
@@ -103,8 +106,12 @@ export default function EcommerceAdminPage() {
     <div className="p-6">
       {/* Header */}
       <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Órdenes de Ecommerce</h1>
-        <p className="text-gray-600 mt-1">Gestiona las órdenes de clientes desde la tienda online</p>
+        <h1 className="text-3xl font-bold text-gray-900">
+          Órdenes de Ecommerce
+        </h1>
+        <p className="text-gray-600 mt-1">
+          Gestiona las órdenes de clientes desde la tienda online
+        </p>
       </div>
 
       {/* Filters */}
@@ -182,7 +189,7 @@ export default function EcommerceAdminPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
-                      {order.client.email}
+                      {order.nameClient}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
@@ -192,14 +199,19 @@ export default function EcommerceAdminPage() {
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className="text-sm text-gray-600">
-                      {order.ecommerceDetail.length} {order.ecommerceDetail.length === 1 ? 'ítem' : 'ítems'}
+                      {order.ecommerceDetail.length}{" "}
+                      {order.ecommerceDetail.length === 1 ? "ítem" : "ítems"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <select
                       value={order.status}
-                      onChange={(e) => handleStatusChange(order.id, e.target.value)}
-                      className={`px-2 py-1 text-xs font-semibold rounded-full border-0 cursor-pointer ${getStatusColor(order.status)}`}
+                      onChange={(e) =>
+                        handleStatusChange(order.id, e.target.value)
+                      }
+                      className={`px-2 py-1 text-xs font-semibold rounded-full border-0 cursor-pointer ${getStatusColor(
+                        order.status
+                      )}`}
                     >
                       <option value="Pendiente">Pendiente</option>
                       <option value="Vendido">Vendido</option>
@@ -233,7 +245,9 @@ export default function EcommerceAdminPage() {
           {filteredOrders.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500">
-                {searchTerm || selectedStatus ? 'No hay órdenes que coincidan' : 'No hay órdenes de ecommerce'}
+                {searchTerm || selectedStatus
+                  ? "No hay órdenes que coincidan"
+                  : "No hay órdenes de ecommerce"}
               </p>
             </div>
           )}

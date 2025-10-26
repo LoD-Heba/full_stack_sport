@@ -1,9 +1,9 @@
 // frontend/components/shop/ProductCard.tsx
 "use client";
-import Link from 'next/link';
-import { Product } from '@/types/product';
-import { useState } from 'react';
-import { useCart } from '@/app/shop/cart/CartContext';
+import Link from "next/link";
+import { Product } from "@/types/product";
+import { useState } from "react";
+import { useCart } from "@/app/shop/cart/CartContext";
 
 interface ProductCardProps {
   product: Product;
@@ -40,7 +40,8 @@ export default function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               className="w-full h-full object-cover group-hover:scale-110 transition"
               onError={(e) => {
-                e.currentTarget.src = '#';
+                e.currentTarget.onerror = null; 
+                e.currentTarget.src = "/default-image-products.png"; 
               }}
             />
           ) : (
@@ -86,17 +87,17 @@ export default function ProductCard({ product }: ProductCardProps) {
 
           {/* Precio */}
           <div className="mb-4">
-            <p className="text-lg font-bold text-blue-600">
-              Bs{product.price}
-            </p>
+            <p className="text-lg font-bold text-blue-600">Bs{product.price}</p>
           </div>
 
           {/* Stock Indicador */}
           <div className="mb-4">
-            <p className={`text-xs font-medium ${
-              product.stock > 0 ? 'text-green-600' : 'text-red-600'
-            }`}>
-              {product.stock > 0 ? `${product.stock} en stock` : 'Sin stock'}
+            <p
+              className={`text-xs font-medium ${
+                product.stock > 0 ? "text-green-600" : "text-red-600"
+              }`}
+            >
+              {product.stock > 0 ? `${product.stock} en stock` : "Sin stock"}
             </p>
           </div>
 
@@ -106,13 +107,15 @@ export default function ProductCard({ product }: ProductCardProps) {
             disabled={!product.isAvailable || product.stock === 0}
             className={`w-full py-2 rounded font-medium transition text-sm ${
               showAddedMessage
-                ? 'bg-green-600 text-white'
+                ? "bg-green-600 text-white"
                 : product.isAvailable && product.stock > 0
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
-                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                ? "bg-blue-600 text-white hover:bg-blue-700"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}
           >
-            {showAddedMessage ? '✅ Agregado al carrito' : '🛒 Agregar al carrito'}
+            {showAddedMessage
+              ? "✅ Agregado al carrito"
+              : "🛒 Agregar al carrito"}
           </button>
         </div>
       </div>

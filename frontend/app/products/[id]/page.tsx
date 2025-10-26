@@ -166,7 +166,7 @@ export default function ProductDetailPage({
               {/* Precio */}
               <div className="mb-6">
                 <p className="text-4xl font-bold text-blue-600">
-                  Bs{product.price.toFixed(2)}
+                  Bs{product.price}
                 </p>
               </div>
 

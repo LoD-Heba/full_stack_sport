@@ -248,7 +248,7 @@ export default function UserForm({ userId, onSuccess }: UserFormProps) {
           {loading ? 'Guardando...' : userId ? 'Actualizar' : 'Crear Usuario'}
         </button>
         <a
-          href="/dashboard"
+          href="/dashboard/users"
           className="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
         >
           Cancelar

@@ -36,6 +36,7 @@ export default function Home() {
       console.error('Error fetching data:', err);
     } finally {
       setLoading(false);
+      console.log("first")
     }
   };
 

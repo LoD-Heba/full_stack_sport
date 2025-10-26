@@ -8,7 +8,6 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params);
 
   return (
-    <DashboardLayout>
       <div className="p-6">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900">Editar Usuario</h1>
@@ -17,6 +16,5 @@ export default function EditUserPage({ params }: { params: Promise<{ id: string 
         
         <UserForm userId={id} />
       </div>
-    </DashboardLayout>
   );
 }

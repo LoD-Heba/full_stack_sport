@@ -2,7 +2,6 @@
 "use client";
 import { useEffect, useState } from 'react';
 import { Role } from '@/types/role';
-import DashboardLayout from '../layout';
 
 export default function RolesPage() {
   const [roles, setRoles] = useState<Role[]>([]);
